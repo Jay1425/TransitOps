@@ -70,50 +70,50 @@ TransitOps is loaded with professional features tailored to enterprise needs:
 ## 📸 Screenshots
 
 ### 🖥️ Dashboard Overview
-> [!NOTE]
-> *Add main fleet command console dashboard screenshot here showing KPIs, active charts, and quick dispatch tables.*
+> <img width="1918" height="1078" alt="image" src="https://github.com/user-attachments/assets/43619861-0e76-4cb0-b1d8-de5b55ffd499" />
 
 ---
 
 ### 🚛 Vehicle Registry Module
-> [!NOTE]
-> *Add vehicle registry list screenshot here displaying active status badges, chassis records, and odometer entries.*
+> <img width="1918" height="1078" alt="image" src="https://github.com/user-attachments/assets/84709c73-4787-453d-b046-093ed833dda9" />
+
+
 
 ---
 
 ### 👨‍✈️ Driver Management Directory
-> [!NOTE]
-> *Add driver roster page screenshot here showcasing safety scores, license validation statuses, and quick action panels.*
+> <img width="1918" height="1078" alt="image" src="https://github.com/user-attachments/assets/2a733cab-fb96-4ad9-9661-82e589fd1973" />
+
 
 ---
 
 ### 🛣️ Trip Dispatcher Console
-> [!NOTE]
-> *Add trip logs table screenshot here displaying route details, status colors, and dispatch forms.*
+> <img width="1918" height="1078" alt="image" src="https://github.com/user-attachments/assets/7a2b115c-256b-4e89-89d5-59d9b6cecd95" />
+
 
 ---
 
 ### 🔧 Maintenance Logs
-> [!NOTE]
-> *Add maintenance schedule checklist screenshot here detailing service logs and priority warnings.*
+> <img width="1918" height="1078" alt="image" src="https://github.com/user-attachments/assets/013ec94e-d206-482d-a12b-f03b3e465c8a" />
+
 
 ---
 
 ### ⛽ Fuel Transactions & Bills
-> [!NOTE]
-> *Add fuel logs screenshot here showing driver receipts, logged quantities, and efficiency stats.*
+> <img width="1918" height="1078" alt="image" src="https://github.com/user-attachments/assets/4154f54b-dac6-476b-af20-a28ffb3c23b7" />
+
 
 ---
 
 ### 📊 Finance Analytics Panel
-> [!NOTE]
-> *Add finance analytics dashboard screenshot here displaying profit margins, category charts, and vehicle ROI metrics.*
+> <img width="1918" height="1078" alt="image" src="https://github.com/user-attachments/assets/355c94a8-749f-4921-b3b1-2690ccc96d85" />
+
 
 ---
 
 ### ⚙️ System Settings
-> [!NOTE]
-> *Add configuration panel screenshot here showing units (km/miles, litres/gallons), alerts toggles, and notification settings.*
+> <img width="1918" height="1078" alt="image" src="https://github.com/user-attachments/assets/564e519a-c622-4db9-a73f-d8cd4695fdd5" />
+
 
 ---
 
