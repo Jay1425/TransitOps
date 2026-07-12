@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} &mdash; Trip Dispatcher{% endblock %}
+{% block header_title %}{{ header_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-4">
+    <!-- Back Link -->
+    <div class="mb-4">
+        <a href="{% url 'trip_list' %}" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-[#2563EB] transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Trip Dispatch Console</span>
+        </a>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div class="p-6 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="navigation" class="w-5 h-5 text-[#2563EB]"></i>
+                    <span>{{ page_title }}</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Assign vehicle, driver, cargo weight, and planned route parameters.</p>
+            </div>
+            {% if trip %}
+                <span class="px-3 py-1 rounded-full text-[10px] font-mono font-extrabold bg-blue-100 text-blue-800 border border-blue-200">
+                    Order ID: #{{ trip.pk }}
+                </span>
+            {% endif %}
+        </div>
+
+        <form method="post" action="{{ action_url }}" class="p-6 space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="p-4 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-semibold space-y-1">
+                {% for err in form.non_field_errors %}
+                    <p class="flex items-center gap-2"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i> {{ err }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Trip Number -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Trip Order Number <span class="text-red-500">*</span></label>
+                    {{ form.trip_number }}
+                    {% if form.trip_number.errors %}
+                        <p class="text-xs text-red-600 mt-1 font-semibold">{{ form.trip_number.errors.0 }}</p>
+                    {% else %}
+                        <p class="text-[11px] text-slate-400 mt-1">Unique dispatch identifier (e.g. TRP-2026-1001).</p>
+                    {% endif %}
+                </div>
+
+                <!-- Departure Time -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Planned Departure Time <span class="text-red-500">*</span></label>
+                    {{ form.departure_time }}
+                    {% if form.departure_time.errors %}
+                        <p class="text-xs text-red-600 mt-1 font-semibold">{{ form.departure_time.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Pickup / Source -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Source / Pickup Hub <span class="text-red-500">*</span></label>
+                    {{ form.pickup }}
+                    {% if form.pickup.errors %}
+                        <p class="text-xs text-red-600 mt-1 font-semibold">{{ form.pickup.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Destination -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Destination Hub <span class="text-red-500">*</span></label>
+                    {{ form.destination }}
+                    {% if form.destination.errors %}
+                        <p class="text-xs text-red-600 mt-1 font-semibold">{{ form.destination.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Vehicle Assignment (Dropdown filtered to Available) -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Assign Vehicle <span class="text-red-500">*</span></label>
+                    {{ form.vehicle }}
+                    {% if form.vehicle.errors %}
+                        <p class="text-xs text-red-600 mt-1 font-semibold">{{ form.vehicle.errors.0 }}</p>
+                    {% else %}
+                        <p class="text-[11px] text-slate-400 mt-1">Only available vehicles with no active dispatches are listed.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Driver Assignment (Dropdown filtered to Available & unexpired) -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Assign Driver <span class="text-red-500">*</span></label>
+                    {{ form.driver }}
+                    {% if form.driver.errors %}
+                        <p class="text-xs text-red-600 mt-1 font-semibold">{{ form.driver.errors.0 }}</p>
+                    {% else %}
+                        <p class="text-[11px] text-slate-400 mt-1">Only active, unexpired, and available drivers are selectable.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Cargo Description -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Cargo Description <span class="text-red-500">*</span></label>
+                    {{ form.cargo }}
+                    {% if form.cargo.errors %}
+                        <p class="text-xs text-red-600 mt-1 font-semibold">{{ form.cargo.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Cargo Weight (KG) -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Cargo Weight (KG) <span class="text-red-500">*</span></label>
+                    {{ form.cargo_weight }}
+                    {% if form.cargo_weight.errors %}
+                        <p class="text-xs text-red-600 mt-1 font-semibold">{{ form.cargo_weight.errors.0 }}</p>
+                    {% else %}
+                        <p class="text-[11px] text-amber-600 font-semibold mt-1">Must not exceed assigned vehicle's maximum payload capacity.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Planned Distance (KM) -->
+                <div class="col-span-1 md:col-span-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Planned Distance (KM) <span class="text-red-500">*</span></label>
+                    {{ form.planned_distance }}
+                    {% if form.planned_distance.errors %}
+                        <p class="text-xs text-red-600 mt-1 font-semibold">{{ form.planned_distance.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Remarks -->
+                <div class="col-span-1 md:col-span-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Dispatch Remarks / Route Instructions</label>
+                    {{ form.remarks }}
+                    {% if form.remarks.errors %}
+                        <p class="text-xs text-red-600 mt-1 font-semibold">{{ form.remarks.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="pt-6 border-t border-slate-200 flex items-center justify-end gap-3">
+                <a href="{% url 'trip_list' %}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold uppercase tracking-wider transition">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2 bg-[#2563EB] hover:bg-blue-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>Save Draft Order</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

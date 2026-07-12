@@ -1,0 +1,33 @@
+/* TransitOps ERP Custom Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.bg-grid-pattern {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+.erp-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.input-field {
+    outline: none;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn-primary-erp {
+    background-color: #2563EB;
+    color: #ffffff;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn-primary-erp:hover {
+    background-color: #1D4ED8;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25), 0 2px 4px -1px rgba(37, 99, 235, 0.15);
+}

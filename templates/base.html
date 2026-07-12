@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %} — TransitOps ERP</title>
+
+    <!-- Tailwind & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="bg-[#F8FAFC] text-[#0F172A] min-h-screen flex flex-col font-sans">
+
+    <div class="flex flex-1 min-h-screen">
+        <!-- Sidebar -->
+        {% include "includes/sidebar.html" %}
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0">
+            <!-- Navbar -->
+            {% include "includes/navbar.html" %}
+
+            <!-- Django Messages -->
+            <div class="px-6 pt-4">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-4 rounded-lg border {% if message.tags == 'error' %}border-red-300 bg-red-50 text-red-700{% elif message.tags == 'success' %}border-green-300 bg-green-50 text-green-700{% else %}border-blue-300 bg-blue-50 text-blue-700{% endif %} p-4 text-sm font-medium shadow-sm flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                {% if message.tags == 'error' %}
+                                    <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
+                                {% elif message.tags == 'success' %}
+                                    <i data-lucide="check-circle-2" class="w-5 h-5 text-green-600"></i>
+                                {% else %}
+                                    <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                                {% endif %}
+                                <span>{{ message }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Page Content -->
+            <main class="flex-1 p-6">
+                {% block content %}
+                {% endblock %}
+            </main>
+
+            <!-- Footer -->
+            {% include "includes/footer.html" %}
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

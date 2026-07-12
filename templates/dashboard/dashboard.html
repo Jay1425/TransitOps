@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Operations Dashboard{% endblock %}
+{% block header_title %}Operations Console &mdash; Dashboard Overview{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+    <!-- Top Bar: Search & Filters -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <!-- Quick Search -->
+        <div class="relative flex-1 max-w-md">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input
+                type="text"
+                placeholder="Search active dispatches, vehicles, drivers..."
+                class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-10 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 transition"
+            >
+        </div>
+
+        <!-- Filters: Vehicle Type, Status, Region -->
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Type:</span>
+                <select class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+                    <option value="">All Types</option>
+                    <option value="truck">Heavy Truck</option>
+                    <option value="van">Cargo Van</option>
+                    <option value="pickup">Pickup</option>
+                    <option value="bus">Staff Bus</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Status:</span>
+                <select class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+                    <option value="">All Statuses</option>
+                    <option value="available">Available</option>
+                    <option value="on_trip">On Trip</option>
+                    <option value="in_shop">In Shop</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Region:</span>
+                <select class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+                    <option value="">All Regions</option>
+                    <option value="north">North Zone (Delhi/NCR)</option>
+                    <option value="west">West Zone (Mumbai/Pune)</option>
+                    <option value="south">South Zone (Bangalore/Chennai)</option>
+                    <option value="east">East Zone (Kolkata)</option>
+                </select>
+            </div>
+
+            <button type="button" class="bg-[#2563EB] hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition shadow-xs flex items-center gap-1.5">
+                <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+                <span>Filter</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 7 KPI Cards Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
+        <!-- 1. Active Vehicles -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-blue-300 transition">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Active Fleet</span>
+                <i data-lucide="truck" class="w-4 h-4 text-blue-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.active_vehicles|default:"142" }}</div>
+            <div class="text-[10px] text-green-600 font-semibold mt-1">Operational</div>
+        </div>
+
+        <!-- 2. Available Vehicles -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-green-300 transition">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Available</span>
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-green-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.available_vehicles|default:"98" }}</div>
+            <div class="text-[10px] text-slate-500 font-medium mt-1">Ready to Dispatch</div>
+        </div>
+
+        <!-- 3. Vehicles in Maintenance -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-amber-300 transition">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">In Shop</span>
+                <i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.vehicles_in_maintenance|default:"12" }}</div>
+            <div class="text-[10px] text-amber-600 font-semibold mt-1">Under Repair</div>
+        </div>
+
+        <!-- 4. Active Trips -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-blue-300 transition">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Active Trips</span>
+                <i data-lucide="route" class="w-4 h-4 text-blue-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.active_trips|default:"32" }}</div>
+            <div class="text-[10px] text-blue-600 font-semibold mt-1">En Route</div>
+        </div>
+
+        <!-- 5. Pending Trips -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-indigo-300 transition">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pending Trips</span>
+                <i data-lucide="clock" class="w-4 h-4 text-indigo-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.pending_trips|default:"18" }}</div>
+            <div class="text-[10px] text-slate-500 font-medium mt-1">Scheduled</div>
+        </div>
+
+        <!-- 6. Drivers On Duty -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-teal-300 transition">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Drivers On Duty</span>
+                <i data-lucide="users" class="w-4 h-4 text-teal-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.drivers_on_duty|default:"115" }}</div>
+            <div class="text-[10px] text-teal-600 font-semibold mt-1">Logged In</div>
+        </div>
+
+        <!-- 7. Fleet Utilization -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-purple-300 transition col-span-2 sm:col-span-1">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Utilization</span>
+                <i data-lucide="activity" class="w-4 h-4 text-purple-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.fleet_utilization|default:"78.4%" }}</div>
+            <div class="text-[10px] text-purple-600 font-semibold mt-1">Target: >75%</div>
+        </div>
+    </div>
+
+    <!-- Main Section: Recent Trips Table & Vehicle Status Widget -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recent Trips Table (2 Columns wide on desktop) -->
+        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col justify-between">
+            <div>
+                <!-- Table Header -->
+                <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="list-ordered" class="w-4 h-4 text-[#2563EB]"></i>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Recent Trips</h3>
+                    </div>
+                    <a href="{% url 'trip_list' %}" class="text-xs font-semibold text-[#2563EB] hover:underline flex items-center gap-1">
+                        <span>View All Dispatches</span>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                    </a>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] uppercase tracking-wider font-extrabold text-slate-600">
+                                <th class="py-3 px-4">Trip</th>
+                                <th class="py-3 px-4">Vehicle</th>
+                                <th class="py-3 px-4">Driver</th>
+                                <th class="py-3 px-4">Status</th>
+                                <th class="py-3 px-4 text-right">ETA</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            {% for row in recent_trips %}
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-4 font-bold text-slate-900 font-mono">{{ row.trip }}</td>
+                                <td class="py-3 px-4">{{ row.vehicle }}</td>
+                                <td class="py-3 px-4 font-medium">{{ row.driver }}</td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border {{ row.status_class }}">
+                                        {{ row.status }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-right font-medium text-slate-600">{{ row.eta }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="py-8 text-center text-slate-400">No active dispatches found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 text-[11px] text-slate-500 flex items-center justify-between">
+                <span>Showing 5 most recent dispatches across all regions.</span>
+                <span class="font-semibold text-slate-700">Total Live: {{ kpis.active_trips|default:"32" }}</span>
+            </div>
+        </div>
+
+        <!-- Vehicle Status Widget (1 Column wide on desktop) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs p-5 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-[#2563EB]"></i>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Vehicle Status Widget</h3>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Fleet Total: {{ vehicle_status_summary.total|default:"148" }}</span>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Available -->
+                    <div>
+                        <div class="flex items-center justify-between text-xs font-semibold mb-1">
+                            <span class="flex items-center gap-2 text-slate-700">
+                                <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
+                                Available
+                            </span>
+                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.available.count|default:"98" }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.available.percentage|default:"66" }}%)</span></span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-green-500 h-full rounded-full" style="width: {{ vehicle_status_summary.available.percentage|default:66 }}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- On Trip -->
+                    <div>
+                        <div class="flex items-center justify-between text-xs font-semibold mb-1">
+                            <span class="flex items-center gap-2 text-slate-700">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+                                On Trip
+                            </span>
+                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.on_trip.count|default:"32" }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.on_trip.percentage|default:"22" }}%)</span></span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-blue-500 h-full rounded-full" style="width: {{ vehicle_status_summary.on_trip.percentage|default:22 }}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- In Shop -->
+                    <div>
+                        <div class="flex items-center justify-between text-xs font-semibold mb-1">
+                            <span class="flex items-center gap-2 text-slate-700">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                                In Shop
+                            </span>
+                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.in_shop.count|default:"12" }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.in_shop.percentage|default:"8" }}%)</span></span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-amber-500 h-full rounded-full" style="width: {{ vehicle_status_summary.in_shop.percentage|default:8 }}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Retired -->
+                    <div>
+                        <div class="flex items-center justify-between text-xs font-semibold mb-1">
+                            <span class="flex items-center gap-2 text-slate-700">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
+                                Retired
+                            </span>
+                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.retired.count|default:"6" }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.retired.percentage|default:"4" }}%)</span></span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-red-500 h-full rounded-full" style="width: {{ vehicle_status_summary.retired.percentage|default:4 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100">
+                <a href="{% url 'vehicle_list' %}" class="w-full bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-bold uppercase tracking-wider py-2.5 rounded-lg flex items-center justify-center gap-1.5 transition">
+                    <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                    <span>Open Fleet Registry</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

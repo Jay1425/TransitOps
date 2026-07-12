@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+
+<h1>TransitOps Dashboard</h1>
+
+<p>Welcome {{ request.user.username }}</p>
+
+<p>Your role : {{ request.user.role }}</p>
+
+<a href="{% url 'logout' %}">
+    Logout
+</a>
+
+</body>
+</html>

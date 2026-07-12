@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
 <body class="bg-[#F8FAFC] text-[#0F172A] min-h-screen flex flex-col lg:flex-row">
@@ -86,90 +87,82 @@
             </div>
 
             <!-- Django Messages -->
-
             {% if messages %}
                 {% for message in messages %}
-                    <div class="mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+                    <div class="mb-4 rounded-lg border {% if message.tags == 'error' %}border-red-300 bg-red-50 text-red-700{% elif message.tags == 'success' %}border-green-300 bg-green-50 text-green-700{% else %}border-blue-300 bg-blue-50 text-blue-700{% endif %} p-3 text-sm font-medium">
                         {{ message }}
                     </div>
                 {% endfor %}
             {% endif %}
 
+            {% if form.non_field_errors %}
+                <div class="mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <!-- Login Form -->
-
             <form method="POST">
-
                 {% csrf_token %}
 
                 <!-- Username -->
-
                 <div class="mb-5">
-
-                    <label class="block text-[10px] uppercase tracking-wider font-bold mb-2">
+                    <label class="block text-[10px] uppercase tracking-wider font-bold mb-2 text-slate-700">
                         Username
                     </label>
-
                     <input
                         type="text"
-                        name="username"
+                        name="{{ form.username.name }}"
+                        value="{{ form.username.value|default:'' }}"
                         placeholder="Enter your username"
-                        class="input-field text-sm py-3"
+                        class="w-full text-sm py-3 px-4 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
                         required
+                        autofocus
                     >
-
+                    {% if form.username.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.username.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Password -->
-
                 <div class="mb-5">
-
-                    <label class="block text-[10px] uppercase tracking-wider font-bold mb-2">
+                    <label class="block text-[10px] uppercase tracking-wider font-bold mb-2 text-slate-700">
                         Password
                     </label>
-
                     <input
                         type="password"
-                        name="password"
+                        name="{{ form.password.name }}"
                         placeholder="Enter your password"
-                        class="input-field text-sm py-3"
+                        class="w-full text-sm py-3 px-4 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
                         required
                     >
-
+                    {% if form.password.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.password.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Remember -->
-
                 <div class="flex items-center justify-between mb-6">
-
-                    <label class="flex items-center gap-2 text-sm cursor-pointer">
-
+                    <label class="flex items-center gap-2 text-sm cursor-pointer text-slate-600 font-medium">
                         <input
                             type="checkbox"
-                            name="remember_me"
+                            name="{{ form.remember_me.name }}"
+                            class="rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] h-4 w-4"
+                            {% if form.remember_me.value %}checked{% endif %}
                         >
-
                         Remember Me
-
                     </label>
-
-                    <a
-                        href="#"
-                        class="text-[#2563EB] text-sm hover:underline"
-                    >
-                        Forgot Password?
-                    </a>
-
                 </div>
 
                 <!-- Login Button -->
-
                 <button
                     type="submit"
-                    class="w-full btn-primary-erp py-3 uppercase font-bold tracking-wide"
+                    class="w-full bg-[#2563EB] hover:bg-blue-700 text-white py-3 px-4 rounded-lg uppercase font-bold text-xs tracking-wider shadow-md hover:shadow-lg transition duration-150"
                 >
                     Sign In to System Console
                 </button>
-
             </form>
 
         </div>

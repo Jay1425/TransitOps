@@ -45,11 +45,16 @@ class Vehicle(models.Model):
         max_length=100,
         blank=True
     )
+    is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.registration_number} - {self.vehicle_name}"
+
+    @property
+    def can_be_dispatched(self):
+        return self.is_active and self.status == "available"
     
 class Driver(models.Model):
     STATUS_CHOICES = [
@@ -78,11 +83,21 @@ class Driver(models.Model):
     joining_date = models.DateField(
         auto_now_add=True
     )
+    is_active = models.BooleanField(default=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+    @property
+    def is_license_expired(self):
+        from django.utils import timezone
+        return bool(self.license_expiry and self.license_expiry < timezone.now().date())
+
+    @property
+    def can_be_dispatched(self):
+        return self.is_active and self.status == "available" and not self.is_license_expired
 
 class Trip(models.Model):
     STATUS_CHOICES = [
@@ -155,6 +170,7 @@ class Trip(models.Model):
         blank=True,
         null=True
     )
+    is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

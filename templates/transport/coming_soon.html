@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module_title|default:"Coming Soon" }}{% endblock %}
+{% block header_title %}{{ module_title|default:"System Module" }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+    <div class="bg-white border border-slate-200 rounded-xl shadow-xs p-8 text-center">
+        <div class="w-16 h-16 bg-blue-50 text-[#2563EB] rounded-2xl flex items-center justify-center mx-auto mb-6 border border-blue-100">
+            <i data-lucide="layers" class="w-8 h-8"></i>
+        </div>
+
+        <span class="inline-block bg-blue-100 text-[#2563EB] text-[10px] font-extrabold uppercase px-3 py-1 rounded-full mb-3 tracking-wider">
+            {{ scheduled_module|default:"Scheduled Module" }}
+        </span>
+
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">{{ module_title|default:"Module Coming Soon" }}</h2>
+        <p class="text-sm text-slate-500 max-w-lg mx-auto mb-6 leading-relaxed">
+            {{ description|default:"This enterprise transport operations module is scheduled for implementation in the next phase of the Odoo Hackathon 2026 build pipeline." }}
+        </p>
+
+        <div class="inline-flex items-center gap-6 bg-slate-50 border border-slate-200 rounded-lg px-6 py-3 text-xs text-slate-600 mb-8">
+            <div class="flex items-center gap-2">
+                <span class="font-bold uppercase text-slate-400 text-[10px]">Endpoint:</span>
+                <code class="text-blue-600 font-mono font-semibold">{{ module_path|default:request.path }}</code>
+            </div>
+            <div class="h-4 w-px bg-slate-200"></div>
+            <div class="flex items-center gap-2">
+                <span class="font-bold uppercase text-slate-400 text-[10px]">Access Level:</span>
+                <span class="text-slate-800 font-semibold">{{ allowed_roles|default:"Authorized Personnel" }}</span>
+            </div>
+        </div>
+
+        <div>
+            <a href="{% url 'dashboard' %}" class="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-lg shadow-sm transition">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span>Return to System Console</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

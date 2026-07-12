@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Vehicle Details &mdash; {{ vehicle.registration_number }}{% endblock %}
+{% block header_title %}Fleet Registry &mdash; Asset Detail Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6 py-4">
+    <!-- Back & Quick Actions Bar -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <a href="{% url 'vehicle_list' %}" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-[#2563EB] transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Fleet Registry</span>
+        </a>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'vehicle_edit' vehicle.pk %}" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 shadow-xs">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                <span>Edit Profile</span>
+            </a>
+            <a href="{% url 'vehicle_delete' vehicle.pk %}" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                <span>Retire Asset</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Asset Header Card -->
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                <i data-lucide="truck" class="w-8 h-8 text-[#2563EB]"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xl font-black text-slate-900 font-mono tracking-tight">{{ vehicle.registration_number }}</h2>
+                    {% if vehicle.status == 'available' %}
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-green-50 text-green-700 border border-green-200">Available</span>
+                    {% elif vehicle.status == 'on_trip' %}
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">On Trip</span>
+                    {% elif vehicle.status == 'in_shop' %}
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">In Shop</span>
+                    {% else %}
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-red-50 text-red-700 border border-red-200">Retired</span>
+                    {% endif %}
+                </div>
+                <p class="text-sm font-semibold text-slate-700 mt-1">{{ vehicle.vehicle_name }} &bull; <span class="uppercase text-slate-500">{{ vehicle.get_vehicle_type_display }}</span></p>
+                <p class="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                    <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                    <span>Current Depot: {{ vehicle.current_location|default:"Unassigned Depot" }}</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full md:w-auto border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-center">
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Max Capacity</span>
+                <span class="text-sm font-black font-mono text-slate-800">{{ vehicle.capacity }} KG</span>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-center">
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Odometer</span>
+                <span class="text-sm font-black font-mono text-slate-800">{{ vehicle.odometer }} KM</span>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-center col-span-2 sm:col-span-1">
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Acquisition Cost</span>
+                <span class="text-sm font-black font-mono text-slate-800">&dollar;{{ vehicle.acquisition_cost|floatformat:2 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Specifications Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-100 pb-2">Asset Metadata</h4>
+            <dl class="space-y-3 text-xs">
+                <div class="flex justify-between">
+                    <dt class="text-slate-500 font-medium">Fuel Type:</dt>
+                    <dd class="font-bold text-slate-800 capitalize">{{ vehicle.get_fuel_type_display }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-slate-500 font-medium">Insurance Expiry:</dt>
+                    <dd class="font-mono font-bold text-slate-800">{{ vehicle.insurance_expiry }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-slate-500 font-medium">Registered On:</dt>
+                    <dd class="font-mono font-bold text-slate-800">{{ vehicle.created_at|date:"Y-m-d" }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs col-span-1 md:col-span-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-100 pb-2">Operational Summary</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div class="p-3 bg-blue-50/50 rounded-lg border border-blue-100">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Total Trips Logged</span>
+                    <p class="text-xl font-black font-mono text-slate-900 mt-1">{{ vehicle.trips.count }}</p>
+                </div>
+                <div class="p-3 bg-amber-50/50 rounded-lg border border-amber-100">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-600">Maintenance Records</span>
+                    <p class="text-xl font-black font-mono text-slate-900 mt-1">{{ vehicle.maintenances.count }}</p>
+                </div>
+                <div class="p-3 bg-green-50/50 rounded-lg border border-green-100 col-span-2 sm:col-span-1">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-green-600">Fuel Logs</span>
+                    <p class="text-xl font-black font-mono text-slate-900 mt-1">{{ vehicle.fuel_logs.count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Trips Table -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <i data-lucide="navigation" class="w-4 h-4 text-[#2563EB]"></i>
+                <span>Recent Trips Assigned to this Vehicle</span>
+            </h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-slate-100/60 border-b border-slate-200 text-[10px] uppercase font-extrabold text-slate-600">
+                        <th class="py-3 px-4">Trip Number</th>
+                        <th class="py-3 px-4">Driver</th>
+                        <th class="py-3 px-4">Route</th>
+                        <th class="py-3 px-4">Departure</th>
+                        <th class="py-3 px-4 text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                    {% for trip in recent_trips %}
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-[#2563EB]">{{ trip.trip_number }}</td>
+                        <td class="py-3 px-4 font-medium">{{ trip.driver.name }}</td>
+                        <td class="py-3 px-4">{{ trip.pickup }} &rarr; {{ trip.destination }}</td>
+                        <td class="py-3 px-4 font-mono text-slate-500">{{ trip.departure_time|date:"Y-m-d H:i" }}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-slate-100 text-slate-700">{{ trip.get_status_display }}</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-6 text-center text-slate-400 font-semibold">No recent trips recorded for this vehicle.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

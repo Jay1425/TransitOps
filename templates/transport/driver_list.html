@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Driver Directory &mdash; Safety Profile{% endblock %}
+{% block header_title %}Safety &mdash; Driver Management & Compliance Console{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+    <!-- Top Bar: Title & Add Action -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <i data-lucide="shield-check" class="w-5 h-5 text-[#2563EB]"></i>
+                <span>Driver & Safety Directory</span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">Track operator credentials, monitor safety scores, and enforce license compliance.</p>
+        </div>
+        <a href="{% url 'driver_add' %}" class="bg-[#2563EB] hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-2 shrink-0">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span>Onboard New Driver</span>
+        </a>
+    </div>
+
+    <!-- Search & Filters Bar -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+        <form method="get" action="{% url 'driver_list' %}" class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+            <!-- Search Box -->
+            <div class="relative flex-1 max-w-md">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ search_query }}"
+                    placeholder="Search Driver Name, License Number, or Phone..."
+                    class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-10 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 transition"
+                >
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Status:</span>
+                    <select name="status" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+                        <option value="">All Statuses</option>
+                        {% for s_code, s_label in status_choices %}
+                            <option value="{{ s_code }}" {% if selected_status == s_code %}selected{% endif %}>{{ s_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Compliance:</span>
+                    <select name="expired" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+                        <option value="">All Licenses</option>
+                        <option value="1" {% if selected_expired == "1" %}selected{% endif %}>Expired Licenses Only</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Sort:</span>
+                    <select name="sort" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+                        <option value="-created_at" {% if sort_by == "-created_at" %}selected{% endif %}>Newest Onboarded</option>
+                        <option value="name" {% if sort_by == "name" %}selected{% endif %}>Name (A-Z)</option>
+                        <option value="-safety_score" {% if sort_by == "-safety_score" %}selected{% endif %}>Highest Safety Score</option>
+                        <option value="safety_score" {% if sort_by == "safety_score" %}selected{% endif %}>Lowest Safety Score</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition shadow-xs flex items-center gap-1.5">
+                    <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+                    <span>Apply</span>
+                </button>
+
+                {% if search_query or selected_status or selected_expired %}
+                    <a href="{% url 'driver_list' %}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>Reset</span>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Driver Directory Table -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] uppercase tracking-wider font-extrabold text-slate-600">
+                        <th class="py-3.5 px-4">Driver Name</th>
+                        <th class="py-3.5 px-4">License Number</th>
+                        <th class="py-3.5 px-4">Category / Expiry</th>
+                        <th class="py-3.5 px-4">Contact Number</th>
+                        <th class="py-3.5 px-4 text-center">Safety Score</th>
+                        <th class="py-3.5 px-4 text-center">Status</th>
+                        <th class="py-3.5 px-4 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                    {% for driver in page_obj %}
+                    <tr class="hover:bg-slate-50/80 transition {% if driver.is_license_expired %}bg-red-50/30{% endif %}">
+                        <!-- Driver Name -->
+                        <td class="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0">
+                                {{ driver.name|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <span class="block">{{ driver.name }}</span>
+                                <span class="text-[10px] text-slate-400 font-normal">Joined: {{ driver.joining_date|date:"M Y" }}</span>
+                            </div>
+                        </td>
+
+                        <!-- License Number -->
+                        <td class="py-3.5 px-4 font-mono font-bold text-slate-800">{{ driver.license_number }}</td>
+
+                        <!-- License Category & Expiry -->
+                        <td class="py-3.5 px-4">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 font-mono">{{ driver.license_category }}</span>
+                                <span class="font-mono text-slate-600">{{ driver.license_expiry }}</span>
+                                {% if driver.is_license_expired %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-red-600 text-white shadow-xs">
+                                        Expired
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Contact Number -->
+                        <td class="py-3.5 px-4 font-mono font-medium text-slate-800">{{ driver.phone }}</td>
+
+                        <!-- Safety Score with Colored Badges -->
+                        <td class="py-3.5 px-4 text-center">
+                            {% if driver.safety_score >= 80 %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-green-100 text-green-800 border border-green-300 shadow-2xs">
+                                    <i data-lucide="award" class="w-3 h-3 text-green-600"></i>
+                                    <span>{{ driver.safety_score }}/100 (Safe)</span>
+                                </span>
+                            {% elif driver.safety_score >= 50 %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-yellow-100 text-yellow-800 border border-yellow-300 shadow-2xs">
+                                    <i data-lucide="alert-circle" class="w-3 h-3 text-yellow-600"></i>
+                                    <span>{{ driver.safety_score }}/100 (Caution)</span>
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-red-100 text-red-800 border border-red-300 shadow-2xs animate-pulse">
+                                    <i data-lucide="alert-triangle" class="w-3 h-3 text-red-600"></i>
+                                    <span>{{ driver.safety_score }}/100 (Risk)</span>
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Driver Status -->
+                        <td class="py-3.5 px-4 text-center">
+                            {% if driver.status == 'available' %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-green-50 text-green-700 border border-green-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                    <span>Available</span>
+                                </span>
+                            {% elif driver.status == 'on_trip' %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                    <span>On Trip</span>
+                                </span>
+                            {% elif driver.status == 'off_duty' %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-300">
+                                    <span>Off Duty</span>
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-red-50 text-red-700 border border-red-200">
+                                    <span>Suspended</span>
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="py-3.5 px-4 text-center">
+                            <div class="inline-flex items-center justify-center gap-2">
+                                <a href="{% url 'driver_edit' driver.pk %}" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 rounded-md transition" title="Edit Driver">
+                                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                </a>
+                                <a href="{% url 'driver_delete' driver.pk %}" class="p-1.5 bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-md transition" title="Deactivate / Delete">
+                                    <i data-lucide="user-x" class="w-3.5 h-3.5"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-slate-400">
+                                <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+                                    <i data-lucide="users" class="w-6 h-6 text-slate-400"></i>
+                                </div>
+                                <p class="font-semibold text-slate-600">No driver records found matching your query.</p>
+                                <p class="text-xs text-slate-400 mt-1">Adjust your filters or onboard a new operator using the button above.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50/50 flex items-center justify-between text-xs text-slate-600">
+            <div>
+                Showing <span class="font-bold text-slate-800">{{ page_obj.start_index }}</span> to <span class="font-bold text-slate-800">{{ page_obj.end_index }}</span> of <span class="font-bold text-slate-800">{{ page_obj.paginator.count }}</span> drivers
+            </div>
+            <div class="flex items-center gap-1.5">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&status={{ selected_status }}&expired={{ selected_expired }}&sort={{ sort_by }}" class="px-3 py-1.5 bg-white border border-slate-300 rounded-md hover:bg-slate-100 font-semibold transition">Previous</a>
+                {% else %}
+                    <span class="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-md text-slate-400 cursor-not-allowed">Previous</span>
+                {% endif %}
+
+                <span class="px-3 py-1.5 font-bold text-[#2563EB] bg-blue-50 border border-blue-200 rounded-md">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&status={{ selected_status }}&expired={{ selected_expired }}&sort={{ sort_by }}" class="px-3 py-1.5 bg-white border border-slate-300 rounded-md hover:bg-slate-100 font-semibold transition">Next</a>
+                {% else %}
+                    <span class="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-md text-slate-400 cursor-not-allowed">Next</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
