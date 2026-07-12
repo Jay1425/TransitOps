@@ -3,10 +3,11 @@ from django import forms
 
 class LoginForm(forms.Form):
     username = forms.CharField(
+        label="Username or Email",
         max_length=150,
         widget=forms.TextInput(attrs={
             "class": "input-field text-sm py-3 w-full border border-slate-300 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-blue-500",
-            "placeholder": "Enter your username",
+            "placeholder": "Enter username or email address",
             "autofocus": True,
         })
     )

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} &mdash; Fuel Management{% endblock %}
+{% block header_title %}{{ header_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-4">
+    <div class="mb-4">
+        <a href="{% url 'fuel_expense_list' %}?tab=fuel" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-blue-600 transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Fuel Logs</span>
+        </a>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div class="p-6 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="droplet" class="w-5 h-5 text-blue-600"></i>
+                    <span>{{ page_title }}</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Record fuel intake, odometer reading, and station details. Automatically updates vehicle odometer if higher.</p>
+            </div>
+            {% if fuel %}
+                <span class="px-3 py-1 rounded-full text-[10px] font-mono font-extrabold bg-blue-100 text-blue-800 border border-blue-200">
+                    Log ID #{{ fuel.pk }}
+                </span>
+            {% endif %}
+        </div>
+
+        <form method="post" action="{{ action_url }}" class="p-6 space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="p-4 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-semibold space-y-1">
+                {% for err in form.non_field_errors %}
+                    <p class="flex items-center gap-2"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i> {{ err }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Section 1: Asset & Trip Binding -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">1. Vehicle & Trip Association</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Vehicle <span class="text-red-500">*</span></label>
+                        {{ form.vehicle }}
+                        {% if form.vehicle.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.vehicle.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Linked Trip (Optional)</label>
+                        {{ form.trip }}
+                        {% if form.trip.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.trip.errors.0 }}</p>
+                        {% else %}
+                            <p class="text-[10px] text-slate-400 mt-1">Select an active or completed trip to allocate cost.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Volume, Cost & Odometer -->
+            <div class="border-t border-slate-100 pt-5">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">2. Refueling Metrics & Odometer</h4>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Liters <span class="text-red-500">*</span></label>
+                        {{ form.liters }}
+                        {% if form.liters.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.liters.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Total Cost (₹) <span class="text-red-500">*</span></label>
+                        {{ form.cost }}
+                        {% if form.cost.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.cost.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Odometer (KM) <span class="text-red-500">*</span></label>
+                        {{ form.odometer }}
+                        {% if form.odometer.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.odometer.errors.0 }}</p>
+                        {% else %}
+                            <p class="text-[10px] text-blue-600 mt-1 font-medium">Must be &ge; current vehicle odometer.</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Fuel Type</label>
+                        {{ form.fuel_type }}
+                        {% if form.fuel_type.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.fuel_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Vendor & Date -->
+            <div class="border-t border-slate-100 pt-5">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">3. Station Details & Timestamp</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Fuel Date <span class="text-red-500">*</span></label>
+                        {{ form.fuel_date }}
+                        {% if form.fuel_date.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.fuel_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Vendor / Fuel Station</label>
+                        {{ form.vendor }}
+                        {% if form.vendor.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.vendor.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-200 pt-6 flex items-center justify-end gap-3">
+                <a href="{% url 'fuel_expense_list' %}?tab=fuel" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold uppercase tracking-wider transition">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>Save Fuel Log</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

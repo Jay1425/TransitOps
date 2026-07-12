@@ -60,14 +60,14 @@
     </div>
 
     <!-- 7 KPI Cards Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-4">
         <!-- 1. Active Vehicles -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-blue-300 transition">
             <div class="flex items-center justify-between text-slate-400 mb-2">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Active Fleet</span>
                 <i data-lucide="truck" class="w-4 h-4 text-blue-600"></i>
             </div>
-            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.active_vehicles|default:"142" }}</div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.active_vehicles }}</div>
             <div class="text-[10px] text-green-600 font-semibold mt-1">Operational</div>
         </div>
 
@@ -77,7 +77,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Available</span>
                 <i data-lucide="check-circle-2" class="w-4 h-4 text-green-600"></i>
             </div>
-            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.available_vehicles|default:"98" }}</div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.available_vehicles }}</div>
             <div class="text-[10px] text-slate-500 font-medium mt-1">Ready to Dispatch</div>
         </div>
 
@@ -87,7 +87,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">In Shop</span>
                 <i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i>
             </div>
-            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.vehicles_in_maintenance|default:"12" }}</div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.vehicles_in_maintenance }}</div>
             <div class="text-[10px] text-amber-600 font-semibold mt-1">Under Repair</div>
         </div>
 
@@ -97,7 +97,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Active Trips</span>
                 <i data-lucide="route" class="w-4 h-4 text-blue-600"></i>
             </div>
-            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.active_trips|default:"32" }}</div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.active_trips }}</div>
             <div class="text-[10px] text-blue-600 font-semibold mt-1">En Route</div>
         </div>
 
@@ -107,7 +107,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pending Trips</span>
                 <i data-lucide="clock" class="w-4 h-4 text-indigo-600"></i>
             </div>
-            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.pending_trips|default:"18" }}</div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.pending_trips }}</div>
             <div class="text-[10px] text-slate-500 font-medium mt-1">Scheduled</div>
         </div>
 
@@ -117,17 +117,17 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Drivers On Duty</span>
                 <i data-lucide="users" class="w-4 h-4 text-teal-600"></i>
             </div>
-            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.drivers_on_duty|default:"115" }}</div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.drivers_on_duty }}</div>
             <div class="text-[10px] text-teal-600 font-semibold mt-1">Logged In</div>
         </div>
 
         <!-- 7. Fleet Utilization -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-purple-300 transition col-span-2 sm:col-span-1">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-purple-300 transition col-span-1">
             <div class="flex items-center justify-between text-slate-400 mb-2">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Utilization</span>
                 <i data-lucide="activity" class="w-4 h-4 text-purple-600"></i>
             </div>
-            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.fleet_utilization|default:"78.4%" }}</div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ kpis.fleet_utilization }}</div>
             <div class="text-[10px] text-purple-600 font-semibold mt-1">Target: >75%</div>
         </div>
     </div>
@@ -186,7 +186,7 @@
 
             <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 text-[11px] text-slate-500 flex items-center justify-between">
                 <span>Showing 5 most recent dispatches across all regions.</span>
-                <span class="font-semibold text-slate-700">Total Live: {{ kpis.active_trips|default:"32" }}</span>
+                <span class="font-semibold text-slate-700">Total Live: {{ kpis.active_trips }}</span>
             </div>
         </div>
 
@@ -198,7 +198,7 @@
                         <i data-lucide="pie-chart" class="w-4 h-4 text-[#2563EB]"></i>
                         <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Vehicle Status Widget</h3>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Fleet Total: {{ vehicle_status_summary.total|default:"148" }}</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Fleet Total: {{ vehicle_status_summary.total }}</span>
                 </div>
 
                 <div class="space-y-4">
@@ -209,10 +209,10 @@
                                 <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
                                 Available
                             </span>
-                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.available.count|default:"98" }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.available.percentage|default:"66" }}%)</span></span>
+                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.available.count }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.available.percentage }}%)</span></span>
                         </div>
                         <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div class="bg-green-500 h-full rounded-full" style="width: {{ vehicle_status_summary.available.percentage|default:66 }}%"></div>
+                            <div class="bg-green-500 h-full rounded-full" style="width: {{ vehicle_status_summary.available.percentage }}%"></div>
                         </div>
                     </div>
 
@@ -223,10 +223,10 @@
                                 <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
                                 On Trip
                             </span>
-                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.on_trip.count|default:"32" }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.on_trip.percentage|default:"22" }}%)</span></span>
+                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.on_trip.count }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.on_trip.percentage }}%)</span></span>
                         </div>
                         <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div class="bg-blue-500 h-full rounded-full" style="width: {{ vehicle_status_summary.on_trip.percentage|default:22 }}%"></div>
+                            <div class="bg-blue-500 h-full rounded-full" style="width: {{ vehicle_status_summary.on_trip.percentage }}%"></div>
                         </div>
                     </div>
 
@@ -237,10 +237,10 @@
                                 <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
                                 In Shop
                             </span>
-                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.in_shop.count|default:"12" }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.in_shop.percentage|default:"8" }}%)</span></span>
+                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.in_shop.count }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.in_shop.percentage }}%)</span></span>
                         </div>
                         <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div class="bg-amber-500 h-full rounded-full" style="width: {{ vehicle_status_summary.in_shop.percentage|default:8 }}%"></div>
+                            <div class="bg-amber-500 h-full rounded-full" style="width: {{ vehicle_status_summary.in_shop.percentage }}%"></div>
                         </div>
                     </div>
 
@@ -251,10 +251,10 @@
                                 <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
                                 Retired
                             </span>
-                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.retired.count|default:"6" }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.retired.percentage|default:"4" }}%)</span></span>
+                            <span class="text-slate-900 font-bold">{{ vehicle_status_summary.retired.count }} <span class="text-slate-400 font-normal">({{ vehicle_status_summary.retired.percentage }}%)</span></span>
                         </div>
                         <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div class="bg-red-500 h-full rounded-full" style="width: {{ vehicle_status_summary.retired.percentage|default:4 }}%"></div>
+                            <div class="bg-red-500 h-full rounded-full" style="width: {{ vehicle_status_summary.retired.percentage }}%"></div>
                         </div>
                     </div>
                 </div>
@@ -264,6 +264,99 @@
                 <a href="{% url 'vehicle_list' %}" class="w-full bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-bold uppercase tracking-wider py-2.5 rounded-lg flex items-center justify-center gap-1.5 transition">
                     <i data-lucide="truck" class="w-3.5 h-3.5"></i>
                     <span>Open Fleet Registry</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row: Upcoming Maintenance & Financial KPI Summary -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Upcoming Maintenance Table (2 Columns wide) -->
+        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col justify-between">
+            <div>
+                <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Upcoming Scheduled Maintenance</h3>
+                    </div>
+                    <a href="{% url 'maintenance_list' %}" class="text-xs font-semibold text-[#2563EB] hover:underline flex items-center gap-1">
+                        <span>Shop Logs</span>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                    </a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] uppercase tracking-wider font-extrabold text-slate-600">
+                                <th class="py-3 px-4">Vehicle</th>
+                                <th class="py-3 px-4">Service Type</th>
+                                <th class="py-3 px-4">Scheduled Date</th>
+                                <th class="py-3 px-4">Technician</th>
+                                <th class="py-3 px-4 text-right">Est. Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            {% for m in upcoming_maintenance %}
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-4 font-bold text-slate-900">{{ m.vehicle.registration_number }}</td>
+                                <td class="py-3 px-4">{{ m.service_type }}</td>
+                                <td class="py-3 px-4 font-medium text-amber-600">{{ m.scheduled_date|date:"d M, Y" }}</td>
+                                <td class="py-3 px-4">{{ m.technician }}</td>
+                                <td class="py-3 px-4 text-right font-mono font-bold text-slate-900">₹{{ m.estimated_cost|default:m.cost }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="py-6 text-center text-slate-400">No scheduled shop appointments in the queue.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 text-[11px] text-slate-500 flex items-center justify-between">
+                <span>Vehicles In Shop: <strong class="text-amber-700">{{ kpis.vehicles_in_maintenance|default:"12" }}</strong></span>
+                <a href="{% url 'maintenance_add' %}" class="text-[#2563EB] font-bold hover:underline">+ Schedule Repair</a>
+            </div>
+        </div>
+
+        <!-- Financial Overview Snapshot (1 Column) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs p-5 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="wallet" class="w-4 h-4 text-emerald-600"></i>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Operational Expense Hub</h3>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">Live Sync</span>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Total Fuel Cost</span>
+                            <span class="text-lg font-extrabold text-slate-900 font-mono">₹{{ total_fuel_cost|default:"4,82,150" }}</span>
+                        </div>
+                        <i data-lucide="fuel" class="w-6 h-6 text-blue-500/80"></i>
+                    </div>
+
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Total Expenses</span>
+                            <span class="text-lg font-extrabold text-slate-900 font-mono">₹{{ total_expenses|default:"1,94,300" }}</span>
+                        </div>
+                        <i data-lucide="receipt" class="w-6 h-6 text-indigo-500/80"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 flex gap-2">
+                <a href="{% url 'fuel_expense_list' %}?tab=fuel" class="flex-1 bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-xs font-bold uppercase tracking-wider py-2.5 rounded-lg flex items-center justify-center gap-1.5 transition">
+                    <i data-lucide="droplet" class="w-3.5 h-3.5"></i>
+                    <span>Fuel Logs</span>
+                </a>
+                <a href="{% url 'reports_list' %}" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-wider py-2.5 rounded-lg flex items-center justify-center gap-1.5 transition">
+                    <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
+                    <span>Analytics</span>
                 </a>
             </div>
         </div>

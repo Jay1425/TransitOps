@@ -14,7 +14,7 @@ def role_required(*allowed_roles):
         @wraps(view_func)
         @login_required
         def _wrapped_view(request, *args, **kwargs):
-            if request.user.is_superuser or request.user.role in allowed_roles:
+            if request.user.is_superuser or request.user.role == "admin" or request.user.role in allowed_roles:
                 return view_func(request, *args, **kwargs)
             messages.error(
                 request,

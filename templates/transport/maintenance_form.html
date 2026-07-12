@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} &mdash; Fleet Maintenance{% endblock %}
+{% block header_title %}{{ header_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-4">
+    <!-- Back Link -->
+    <div class="mb-4">
+        <a href="{% url 'maintenance_list' %}" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-amber-600 transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Maintenance Registry</span>
+        </a>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div class="p-6 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="wrench" class="w-5 h-5 text-amber-600"></i>
+                    <span>{{ page_title }}</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Schedule repairs, assign technicians, and set estimated or billed workshop costs.</p>
+            </div>
+            {% if maintenance %}
+                <span class="px-3 py-1 rounded-full text-[10px] font-mono font-extrabold bg-amber-100 text-amber-800 border border-amber-200">
+                    Order #MNT-{{ maintenance.pk|stringformat:"04d" }}
+                </span>
+            {% endif %}
+        </div>
+
+        <form method="post" action="{{ action_url }}" class="p-6 space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="p-4 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-semibold space-y-1">
+                {% for err in form.non_field_errors %}
+                    <p class="flex items-center gap-2"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i> {{ err }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Section 1: Asset Selection & Service Type -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">1. Asset & Service Identification</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Vehicle Asset <span class="text-red-500">*</span></label>
+                        {{ form.vehicle }}
+                        {% if form.vehicle.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.vehicle.errors.0 }}</p>
+                        {% else %}
+                            <p class="text-[10px] text-slate-400 mt-1">Excludes Retired vehicles and vehicles active On Trip.</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Service Type <span class="text-red-500">*</span></label>
+                        {{ form.service_type }}
+                        {% if form.service_type.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.service_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Dates, Status & Technician -->
+            <div class="border-t border-slate-100 pt-5">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">2. Scheduling & Execution</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Technician / Workshop <span class="text-red-500">*</span></label>
+                        {{ form.technician }}
+                        {% if form.technician.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.technician.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Scheduled Date <span class="text-red-500">*</span></label>
+                        {{ form.scheduled_date }}
+                        {% if form.scheduled_date.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.scheduled_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Status <span class="text-red-500">*</span></label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.status.errors.0 }}</p>
+                        {% else %}
+                            <p class="text-[10px] text-amber-600 mt-1 font-medium">Setting 'In Progress' automatically sets Vehicle to 'In Shop'.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Cost Accounting & Dates -->
+            <div class="border-t border-slate-100 pt-5">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">3. Cost Estimates & Completion</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Estimated Cost (₹)</label>
+                        {{ form.estimated_cost }}
+                        {% if form.estimated_cost.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.estimated_cost.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Actual Cost (₹)</label>
+                        {{ form.actual_cost }}
+                        {% if form.actual_cost.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.actual_cost.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Completion Date (Optional)</label>
+                        {{ form.completed_date }}
+                        {% if form.completed_date.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.completed_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Detailed Breakdown & Notes -->
+            <div class="border-t border-slate-100 pt-5">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">4. Diagnostic Notes & Remarks</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Service Breakdown Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Technician / Warranty Notes</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <p class="text-[11px] text-red-600 mt-1 font-medium">{{ form.notes.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Footer Actions -->
+            <div class="border-t border-slate-200 pt-6 flex items-center justify-end gap-3">
+                <a href="{% url 'maintenance_list' %}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold uppercase tracking-wider transition">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>Save Service Order</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

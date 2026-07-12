@@ -1,6 +1,6 @@
 from django import forms
 from django.utils import timezone
-from .models import Vehicle, Driver, Trip
+from .models import Vehicle, Driver, Trip, Maintenance, FuelLog, Expense
 
 
 class VehicleForm(forms.ModelForm):
@@ -153,13 +153,19 @@ class TripForm(forms.ModelForm):
                     f"Cargo weight ({cargo_weight} KG) exceeds vehicle capacity ({vehicle.capacity} KG for {vehicle.registration_number})."
                 )
 
-        # Business Rule 2: Vehicle availability validation
+        # Business Rule 2: Vehicle availability & insurance validation
         if vehicle:
             if not vehicle.is_active or vehicle.status in ["retired", "in_shop", "on_trip"]:
                 if not (self.instance and self.instance.pk and self.instance.vehicle == vehicle):
                     self.add_error(
                         "vehicle",
                         f"Vehicle {vehicle.registration_number} is currently '{vehicle.get_status_display()}' and cannot be assigned."
+                    )
+            elif vehicle.insurance_expiry < timezone.now().date():
+                if not (self.instance and self.instance.pk and self.instance.vehicle == vehicle):
+                    self.add_error(
+                        "vehicle",
+                        f"Vehicle {vehicle.registration_number}'s insurance expired on {vehicle.insurance_expiry}. Cannot assign to trip."
                     )
 
         # Business Rule 3: Driver availability and license validation
@@ -203,3 +209,134 @@ class TripCompleteForm(forms.ModelForm):
             if end_odo < self.instance.start_odometer:
                 raise forms.ValidationError(f"Final odometer ({end_odo}) cannot be lower than start odometer ({self.instance.start_odometer}).")
         return end_odo
+
+
+class MaintenanceForm(forms.ModelForm):
+    class Meta:
+        model = Maintenance
+        fields = [
+            "vehicle",
+            "service_type",
+            "description",
+            "technician",
+            "scheduled_date",
+            "completed_date",
+            "estimated_cost",
+            "actual_cost",
+            "status",
+            "notes",
+        ]
+        widgets = {
+            "vehicle": forms.Select(attrs={"class": "form-select w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30"}),
+            "service_type": forms.TextInput(attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "placeholder": "e.g. Engine Overhaul / Brake Service / Oil Change"}),
+            "description": forms.Textarea(attrs={"class": "form-textarea w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "rows": "3", "placeholder": "Detailed breakdown or scheduled inspection items"}),
+            "technician": forms.TextInput(attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "placeholder": "e.g. Ashok Sharma / Depot Workshop Team"}),
+            "scheduled_date": forms.DateInput(format="%Y-%m-%d", attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30", "type": "date"}),
+            "completed_date": forms.DateInput(format="%Y-%m-%d", attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30", "type": "date"}),
+            "estimated_cost": forms.NumberInput(attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "placeholder": "Estimated Cost (₹)", "step": "0.01", "min": "0"}),
+            "actual_cost": forms.NumberInput(attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "placeholder": "Actual Billed Cost (₹)", "step": "0.01", "min": "0"}),
+            "status": forms.Select(attrs={"class": "form-select w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30"}),
+            "notes": forms.Textarea(attrs={"class": "form-textarea w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "rows": "2", "placeholder": "Optional technician remarks, parts replaced, or warranty notes"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Exclude Retired and Deleted vehicles
+        available_vehicles = Vehicle.objects.filter(is_active=True).exclude(status="retired")
+        if self.instance and self.instance.pk and self.instance.vehicle:
+            available_vehicles = available_vehicles | Vehicle.objects.filter(pk=self.instance.vehicle.pk)
+        self.fields["vehicle"].queryset = available_vehicles.distinct()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        vehicle = cleaned_data.get("vehicle")
+        status = cleaned_data.get("status")
+
+        if vehicle and vehicle.status == "on_trip":
+            if not (self.instance and self.instance.pk and self.instance.vehicle == vehicle and self.instance.status == status):
+                self.add_error("vehicle", f"Vehicle {vehicle.registration_number} is currently On Trip and cannot enter maintenance.")
+
+        return cleaned_data
+
+
+class FuelLogForm(forms.ModelForm):
+    class Meta:
+        model = FuelLog
+        fields = [
+            "vehicle",
+            "trip",
+            "fuel_date",
+            "odometer",
+            "liters",
+            "cost",
+            "fuel_type",
+            "vendor",
+        ]
+        widgets = {
+            "vehicle": forms.Select(attrs={"class": "form-select w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30"}),
+            "trip": forms.Select(attrs={"class": "form-select w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30"}),
+            "fuel_date": forms.DateInput(format="%Y-%m-%d", attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30", "type": "date"}),
+            "odometer": forms.NumberInput(attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "placeholder": "Current Odometer Reading (KM)", "min": "0"}),
+            "liters": forms.NumberInput(attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "placeholder": "Liters Fueled", "step": "0.01", "min": "0.01"}),
+            "cost": forms.NumberInput(attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "placeholder": "Total Cost (₹)", "step": "0.01", "min": "0"}),
+            "fuel_type": forms.Select(attrs={"class": "form-select w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30"}),
+            "vendor": forms.TextInput(attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "placeholder": "e.g. IndianOil Highway Station #41"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["vehicle"].queryset = Vehicle.objects.filter(is_active=True)
+        self.fields["trip"].queryset = Trip.objects.filter(is_active=True)
+        self.fields["trip"].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        vehicle = cleaned_data.get("vehicle")
+        trip = cleaned_data.get("trip")
+        odometer = cleaned_data.get("odometer")
+
+        if trip and vehicle and trip.vehicle != vehicle:
+            self.add_error("trip", f"Selected trip {trip.trip_number} belongs to vehicle {trip.vehicle.registration_number}, not {vehicle.registration_number}.")
+
+        if vehicle and odometer is not None and not self.instance.pk:
+            if odometer < vehicle.odometer:
+                self.add_error("odometer", f"Odometer reading ({odometer}) cannot be lower than current vehicle odometer ({vehicle.odometer} KM).")
+
+        return cleaned_data
+
+
+class ExpenseForm(forms.ModelForm):
+    class Meta:
+        model = Expense
+        fields = [
+            "vehicle",
+            "trip",
+            "expense_type",
+            "amount",
+            "expense_date",
+            "remarks",
+        ]
+        widgets = {
+            "vehicle": forms.Select(attrs={"class": "form-select w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30"}),
+            "trip": forms.Select(attrs={"class": "form-select w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30"}),
+            "expense_type": forms.Select(attrs={"class": "form-select w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30"}),
+            "amount": forms.NumberInput(attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "placeholder": "Expense Amount (₹)", "step": "0.01", "min": "0"}),
+            "expense_date": forms.DateInput(format="%Y-%m-%d", attrs={"class": "form-input w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30", "type": "date"}),
+            "remarks": forms.Textarea(attrs={"class": "form-textarea w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2563EB]/30 placeholder-slate-400", "rows": "3", "placeholder": "Detailed description, toll receipt ID, repair shop notes or vendor"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["vehicle"].queryset = Vehicle.objects.filter(is_active=True)
+        self.fields["trip"].queryset = Trip.objects.filter(is_active=True)
+        self.fields["trip"].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        vehicle = cleaned_data.get("vehicle")
+        trip = cleaned_data.get("trip")
+
+        if trip and vehicle and trip.vehicle != vehicle:
+            self.add_error("trip", f"Selected trip {trip.trip_number} belongs to vehicle {trip.vehicle.registration_number}, not {vehicle.registration_number}.")
+
+        return cleaned_data

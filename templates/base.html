@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="transition-colors duration-200">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +8,32 @@
 
     <!-- Tailwind & Lucide Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Anti-Flash Theme Check -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
-<body class="bg-[#F8FAFC] text-[#0F172A] min-h-screen flex flex-col font-sans">
+<body class="bg-[#F8FAFC] dark:bg-slate-900 text-[#0F172A] dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
     <div class="flex flex-1 min-h-screen">
         <!-- Sidebar -->
@@ -23,21 +44,30 @@
             <!-- Navbar -->
             {% include "includes/navbar.html" %}
 
-            <!-- Django Messages -->
-            <div class="px-6 pt-4">
+            <!-- Django Messages / Enterprise Toast Notification Container (Step 11) -->
+            <div id="toastContainer" class="fixed top-20 right-6 z-50 space-y-3 max-w-md w-full pointer-events-none">
                 {% if messages %}
                     {% for message in messages %}
-                        <div class="mb-4 rounded-lg border {% if message.tags == 'error' %}border-red-300 bg-red-50 text-red-700{% elif message.tags == 'success' %}border-green-300 bg-green-50 text-green-700{% else %}border-blue-300 bg-blue-50 text-blue-700{% endif %} p-4 text-sm font-medium shadow-sm flex items-center justify-between">
-                            <div class="flex items-center gap-2">
+                        <div class="toast-item pointer-events-auto rounded-xl border shadow-lg p-4 text-xs font-semibold flex items-center justify-between transition-all duration-300 transform translate-y-0 opacity-100
+                            {% if message.tags == 'error' %}border-red-200 bg-red-50 text-red-800 dark:bg-red-950/90 dark:border-red-800 dark:text-red-200
+                            {% elif message.tags == 'success' %}border-green-200 bg-green-50 text-green-800 dark:bg-green-950/90 dark:border-green-800 dark:text-green-200
+                            {% elif message.tags == 'warning' %}border-amber-200 bg-amber-50 text-amber-800 dark:bg-amber-950/90 dark:border-amber-800 dark:text-amber-200
+                            {% else %}border-blue-200 bg-blue-50 text-blue-800 dark:bg-blue-950/90 dark:border-blue-800 dark:text-blue-200{% endif %}">
+                            <div class="flex items-center gap-3">
                                 {% if message.tags == 'error' %}
-                                    <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
+                                    <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 dark:text-red-400 shrink-0"></i>
                                 {% elif message.tags == 'success' %}
-                                    <i data-lucide="check-circle-2" class="w-5 h-5 text-green-600"></i>
+                                    <i data-lucide="check-circle-2" class="w-5 h-5 text-green-600 dark:text-green-400 shrink-0"></i>
+                                {% elif message.tags == 'warning' %}
+                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0"></i>
                                 {% else %}
-                                    <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                                    <i data-lucide="info" class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0"></i>
                                 {% endif %}
-                                <span>{{ message }}</span>
+                                <span class="leading-relaxed">{{ message }}</span>
                             </div>
+                            <button onclick="this.closest('.toast-item').remove()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-3">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
                         </div>
                     {% endfor %}
                 {% endif %}
@@ -56,6 +86,44 @@
 
     <script>
         lucide.createIcons();
+
+        // Mobile Sidebar Toggle
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('appSidebar');
+            const overlay = document.getElementById('mobileSidebarOverlay');
+            if (sidebar && overlay) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                }
+            }
+        }
+
+        // Theme Controller (Step 8)
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Auto-Dismiss Enterprise Toasts after 4.5 seconds (Step 11)
+        document.addEventListener("DOMContentLoaded", function() {
+            const toasts = document.querySelectorAll('.toast-item');
+            toasts.forEach(function(toast) {
+                setTimeout(function() {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(-10px)';
+                    setTimeout(function() { toast.remove(); }, 300);
+                }, 4500);
+            });
+        });
     </script>
     {% block extra_js %}{% endblock %}
 </body>

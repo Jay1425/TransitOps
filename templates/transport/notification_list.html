@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Enterprise Notification Center &mdash; TransitOps{% endblock %}
+{% block header_title %}System Alert &amp; Notification Console{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6 py-4">
+    <!-- Header Card -->
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                <i data-lucide="bell" class="w-6 h-6 text-[#2563EB]"></i>
+                <span>Enterprise Notification &amp; Alert Center</span>
+            </h2>
+            <p class="text-xs font-medium text-slate-500 mt-1">Real-time governance alerts, compliance reminders, workshop deadlines, and financial anomalies.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            {% if unread_notifications_count > 0 %}
+            <a href="{% url 'notification_read_all' %}" class="bg-[#2563EB] hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition shadow-xs flex items-center gap-1.5">
+                <i data-lucide="check-check" class="w-4 h-4"></i>
+                <span>Mark All as Read ({{ unread_notifications_count }})</span>
+            </a>
+            {% endif %}
+            <form action="{% url 'trigger_reminders_scan' %}" method="GET" class="inline">
+                <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition shadow-xs flex items-center gap-1.5">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span>Run Scanner</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2">
+            <span class="font-bold uppercase tracking-wider text-slate-500 text-[11px]">Filter by Type:</span>
+            <a href="{% url 'notification_list' %}" class="px-3 py-1 rounded-lg font-bold {% if not filter_type %}bg-blue-50 text-[#2563EB] border border-blue-200{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %} transition">All Alerts</a>
+            {% for val, label in type_choices %}
+            <a href="?type={{ val }}" class="px-3 py-1 rounded-lg font-bold {% if filter_type == val %}bg-blue-50 text-[#2563EB] border border-blue-200{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %} transition">{{ label }}</a>
+            {% endfor %}
+        </div>
+        <div class="text-slate-400 text-[11px] font-mono">
+            Total Records: <strong>{{ page_obj.paginator.count }}</strong>
+        </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden divide-y divide-slate-100">
+        {% for notif in page_obj %}
+        <div class="p-5 flex items-start justify-between gap-4 transition {% if not notif.is_read %}bg-blue-50/30 border-l-4 border-[#2563EB]{% else %}hover:bg-slate-50{% endif %}">
+            <div class="flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5
+                    {% if notif.priority == 'error' %}bg-red-100 text-red-600 border border-red-200
+                    {% elif notif.priority == 'warning' %}bg-amber-100 text-amber-700 border border-amber-200
+                    {% else %}bg-blue-100 text-[#2563EB] border border-blue-200{% endif %}">
+                    {% if notif.notification_type == 'license_expiry' %}<i data-lucide="user-check" class="w-5 h-5"></i>
+                    {% elif notif.notification_type == 'insurance_expiry' %}<i data-lucide="shield-alert" class="w-5 h-5"></i>
+                    {% elif notif.notification_type == 'service_due' %}<i data-lucide="wrench" class="w-5 h-5"></i>
+                    {% elif notif.notification_type == 'trip_delayed' %}<i data-lucide="clock" class="w-5 h-5"></i>
+                    {% else %}<i data-lucide="alert-circle" class="w-5 h-5"></i>{% endif %}
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded
+                            {% if notif.priority == 'error' %}bg-red-100 text-red-700
+                            {% elif notif.priority == 'warning' %}bg-amber-100 text-amber-800
+                            {% else %}bg-blue-100 text-blue-800{% endif %}">
+                            {{ notif.get_notification_type_display }}
+                        </span>
+                        <span class="text-xs text-slate-400 font-mono">{{ notif.created_at|date:"M d, Y &bull; H:i" }}</span>
+                        {% if not notif.is_read %}
+                        <span class="w-2 h-2 rounded-full bg-[#2563EB]" title="Unread"></span>
+                        {% endif %}
+                    </div>
+                    <h4 class="text-sm font-black text-slate-900 mt-1.5">{{ notif.title }}</h4>
+                    <p class="text-xs text-slate-600 mt-1 leading-relaxed">{{ notif.message }}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                {% if notif.link %}
+                <a href="{% url 'notification_read' notif.pk %}" class="bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-2xs">
+                    <span>Inspect</span>
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+                {% elif not notif.is_read %}
+                <a href="{% url 'notification_read' notif.pk %}" class="text-xs font-bold text-[#2563EB] hover:underline px-2 py-1">Mark Read</a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <!-- Empty State Illustration (Step 10) -->
+        <div class="py-16 text-center space-y-4">
+            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400 border border-slate-200">
+                <i data-lucide="bell-off" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-black text-slate-800">No Enterprise Notifications Found</h3>
+                <p class="text-xs text-slate-500 max-w-md mx-auto mt-1">Your fleet operations are running smoothly within compliance limits. Automated scanners check for license expiries, insurance renewals, and service deadlines periodically.</p>
+            </div>
+            <a href="{% url 'vehicle_list' %}" class="inline-block bg-[#2563EB] hover:bg-blue-700 text-white font-bold text-xs px-5 py-2.5 rounded-lg uppercase tracking-wider transition shadow-xs">
+                View Active Fleet
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4 shadow-xs text-xs font-medium text-slate-600">
+        <div>
+            Page <strong class="text-slate-800">{{ page_obj.number }}</strong> of <strong class="text-slate-800">{{ page_obj.paginator.num_pages }}</strong>
+        </div>
+        <div class="flex gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if filter_type %}&type={{ filter_type }}{% endif %}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg transition">Previous</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if filter_type %}&type={{ filter_type }}{% endif %}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg transition">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

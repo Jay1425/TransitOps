@@ -196,6 +196,16 @@ class Maintenance(models.Model):
 
     technician = models.CharField(max_length=100)
 
+    estimated_cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    actual_cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
     cost = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -214,6 +224,8 @@ class Maintenance(models.Model):
         choices=STATUS_CHOICES,
         default="scheduled"
     )
+    notes = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -248,6 +260,9 @@ class FuelLog(models.Model):
     )
 
     odometer = models.PositiveIntegerField()
+    fuel_type = models.CharField(max_length=20, choices=Vehicle.FUEL_CHOICES, blank=True)
+    vendor = models.CharField(max_length=100, blank=True)
+    is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -258,8 +273,10 @@ class Expense(models.Model):
     EXPENSE_CHOICES = [
         ("fuel", "Fuel"),
         ("maintenance", "Maintenance"),
-        ("toll", "Toll"),
         ("parking", "Parking"),
+        ("toll", "Toll"),
+        ("repair", "Repair"),
+        ("miscellaneous", "Miscellaneous"),
         ("other", "Other"),
     ]
 
@@ -288,8 +305,79 @@ class Expense(models.Model):
     )
 
     description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    remarks = models.TextField(blank=True)
     expense_date = models.DateField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.expense_type} - ₹{self.amount}"
+
+
+class VehicleDocument(models.Model):
+    DOC_TYPES = [
+        ("rc", "Registration Certificate (RC)"),
+        ("insurance", "Insurance Policy"),
+        ("puc", "PUC Certificate"),
+        ("permit", "National/State Permit"),
+    ]
+
+    vehicle = models.ForeignKey(
+        Vehicle,
+        on_delete=models.CASCADE,
+        related_name="documents"
+    )
+    doc_type = models.CharField(max_length=20, choices=DOC_TYPES)
+    document_number = models.CharField(max_length=100, blank=True)
+    file = models.FileField(upload_to="vehicle_docs/", blank=True, null=True)
+    expiry_date = models.DateField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.vehicle.registration_number} - {self.get_doc_type_display()}"
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+        return bool(self.expiry_date and self.expiry_date < timezone.now().date())
+
+    @property
+    def days_to_expiry(self):
+        from django.utils import timezone
+        if not self.expiry_date:
+            return 9999
+        return (self.expiry_date - timezone.now().date()).days
+
+
+class Notification(models.Model):
+    TYPE_CHOICES = [
+        ("license_expiry", "License Expiry"),
+        ("insurance_expiry", "Insurance Expiry"),
+        ("service_due", "Service Due"),
+        ("maintenance_started", "Maintenance Started"),
+        ("trip_completed", "Trip Completed"),
+        ("trip_delayed", "Trip Delayed"),
+        ("fuel_cost_spike", "Fuel Cost Spike"),
+        ("expense_limit", "Expense Limit Exceeded"),
+    ]
+
+    PRIORITY_CHOICES = [
+        ("info", "Info"),
+        ("warning", "Warning"),
+        ("error", "High/Alert"),
+    ]
+
+    notification_type = models.CharField(max_length=30, choices=TYPE_CHOICES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default="info")
+    link = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.title

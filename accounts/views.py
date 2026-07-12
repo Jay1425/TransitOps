@@ -21,6 +21,13 @@ def login_view(request):
             username=username,
             password=password
         )
+        if user is None:
+            try:
+                from accounts.models import User
+                u = User.objects.get(email__iexact=username)
+                user = authenticate(request, username=u.username, password=password)
+            except (User.DoesNotExist, User.MultipleObjectsReturned):
+                pass
 
         if user is not None:
             if user.is_active:

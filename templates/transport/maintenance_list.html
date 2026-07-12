@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Fleet Maintenance & Shop Logs{% endblock %}
+{% block header_title %}Fleet Maintenance &mdash; Service Management Console{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+    <!-- Top Bar: Title & Schedule Action -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <i data-lucide="wrench" class="w-5 h-5 text-amber-600"></i>
+                <span>Vehicle Maintenance & Repair Registry</span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">Track workshop servicing, monitor repair costs, and automatically lock vehicles under active repair.</p>
+        </div>
+        <a href="{% url 'maintenance_add' %}" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-2 shrink-0">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Schedule Maintenance</span>
+        </a>
+    </div>
+
+    <!-- Quick Status Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Upcoming Scheduled</span>
+                <div class="text-2xl font-extrabold text-slate-900 mt-1">{{ upcoming_count|default:"0" }}</div>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+            </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Active Shop Repairs</span>
+                <div class="text-2xl font-extrabold text-amber-600 mt-1">{{ in_shop_count|default:"0" }}</div>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+                <i data-lucide="tool" class="w-5 h-5"></i>
+            </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Completed Service Orders</span>
+                <div class="text-2xl font-extrabold text-emerald-600 mt-1">{{ completed_count|default:"0" }}</div>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filters Bar -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+        <form method="get" action="{% url 'maintenance_list' %}" class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+            <div class="relative flex-1 max-w-md">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ search_query }}"
+                    placeholder="Search by Vehicle Reg, Service Type, or Technician..."
+                    class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-10 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition"
+                >
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Vehicle:</span>
+                    <select name="vehicle" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                        <option value="">All Vehicles</option>
+                        {% for v in vehicles %}
+                            <option value="{{ v.pk }}" {% if vehicle_filter == v.pk|stringformat:"s" %}selected{% endif %}>{{ v.registration_number }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Status:</span>
+                    <select name="status" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                        <option value="">All Statuses</option>
+                        <option value="scheduled" {% if status_filter == "scheduled" %}selected{% endif %}>Scheduled</option>
+                        <option value="in_progress" {% if status_filter == "in_progress" %}selected{% endif %}>In Progress</option>
+                        <option value="completed" {% if status_filter == "completed" %}selected{% endif %}>Completed</option>
+                        <option value="breakdown" {% if status_filter == "breakdown" %}selected{% endif %}>Breakdown</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition shadow-xs flex items-center gap-1.5">
+                    <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+                    <span>Filter</span>
+                </button>
+
+                {% if search_query or status_filter or vehicle_filter %}
+                    <a href="{% url 'maintenance_list' %}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition">
+                        Clear
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Maintenance Table -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] uppercase tracking-wider font-extrabold text-slate-600">
+                        <th class="py-3 px-4">Order #</th>
+                        <th class="py-3 px-4">Vehicle</th>
+                        <th class="py-3 px-4">Service Type</th>
+                        <th class="py-3 px-4">Technician</th>
+                        <th class="py-3 px-4">Scheduled Date</th>
+                        <th class="py-3 px-4 text-right">Cost (₹)</th>
+                        <th class="py-3 px-4 text-center">Status</th>
+                        <th class="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                    {% for m in page_obj %}
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-slate-900">#MNT-{{ m.pk|stringformat:"04d" }}</td>
+                        <td class="py-3 px-4 font-bold text-slate-900">
+                            <a href="{% url 'vehicle_detail' m.vehicle.pk %}" class="hover:text-amber-600 transition">{{ m.vehicle.registration_number }}</a>
+                            <span class="block text-[10px] text-slate-400 font-normal">{{ m.vehicle.vehicle_name }}</span>
+                        </td>
+                        <td class="py-3 px-4 font-medium text-slate-800">{{ m.service_type }}</td>
+                        <td class="py-3 px-4 text-slate-600">{{ m.technician }}</td>
+                        <td class="py-3 px-4 font-medium">{{ m.scheduled_date|date:"d M, Y" }}</td>
+                        <td class="py-3 px-4 text-right font-mono font-bold text-slate-900">
+                            ₹{{ m.actual_cost|default:m.cost|default:m.estimated_cost }}
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            {% if m.status == "scheduled" %}
+                                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">Scheduled</span>
+                            {% elif m.status == "in_progress" %}
+                                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">In Shop</span>
+                            {% elif m.status == "completed" %}
+                                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">Completed</span>
+                            {% elif m.status == "breakdown" %}
+                                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-700 border border-red-200">Breakdown</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-right space-x-1">
+                            <a href="{% url 'maintenance_detail' m.pk %}" class="inline-flex items-center justify-center p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded transition" title="View Details">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </a>
+                            <a href="{% url 'maintenance_edit' m.pk %}" class="inline-flex items-center justify-center p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="Edit Order">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </a>
+                            <a href="{% url 'maintenance_delete' m.pk %}" class="inline-flex items-center justify-center p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded transition" title="Delete Order">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="py-12 text-center text-slate-400">
+                            <div class="flex flex-col items-center justify-center space-y-2">
+                                <i data-lucide="tool" class="w-8 h-8 text-slate-300"></i>
+                                <span class="text-sm font-semibold text-slate-600">No maintenance records found.</span>
+                                <span class="text-xs text-slate-400">Schedule regular servicing or log workshop inspections to get started.</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs">
+            <span class="text-slate-500">Showing page <strong class="text-slate-800">{{ page_obj.number }}</strong> of <strong class="text-slate-800">{{ page_obj.paginator.num_pages }}</strong></span>
+            <div class="flex items-center gap-1">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if vehicle_filter %}&vehicle={{ vehicle_filter }}{% endif %}" class="px-2.5 py-1.5 bg-white border border-slate-300 rounded hover:bg-slate-100 font-semibold text-slate-700">Prev</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if vehicle_filter %}&vehicle={{ vehicle_filter }}{% endif %}" class="px-2.5 py-1.5 bg-white border border-slate-300 rounded hover:bg-slate-100 font-semibold text-slate-700">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

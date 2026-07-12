@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Analytics Console{% endblock %}
+{% block header_title %}Reports & Analytics &mdash; Enterprise Intelligence Center{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+    <!-- Top Bar & Export Actions -->
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <i data-lucide="bar-chart-2" class="w-5 h-5 text-indigo-600"></i>
+                <span>Executive Analytics & Data Export Suite</span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">Live visualization of fleet utilization, fuel trends, top operating cost centers, and downloadable ERP ledgers.</p>
+        </div>
+
+        <!-- 4 CSV Export Buttons -->
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <a href="{% url 'analytics_export' format_type='vehicles' %}" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider shadow-xs transition flex items-center gap-1.5" title="Export Vehicle Registry CSV">
+                <i data-lucide="download" class="w-3.5 h-3.5 text-blue-400"></i>
+                <span>Vehicles CSV</span>
+            </a>
+            <a href="{% url 'analytics_export' format_type='trips' %}" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider shadow-xs transition flex items-center gap-1.5" title="Export Trip History CSV">
+                <i data-lucide="download" class="w-3.5 h-3.5 text-indigo-400"></i>
+                <span>Trips CSV</span>
+            </a>
+            <a href="{% url 'analytics_export' format_type='maintenance' %}" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider shadow-xs transition flex items-center gap-1.5" title="Export Maintenance Summary CSV">
+                <i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Maintenance CSV</span>
+            </a>
+            <a href="{% url 'analytics_export' format_type='fuel_expense' %}" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider shadow-xs transition flex items-center gap-1.5" title="Export Fuel & Expense Ledger CSV">
+                <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Ledgers CSV</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 High Level Analytics KPI Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Total Fleet Cost</span>
+                <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900 font-mono">₹{{ total_fleet_cost }}</div>
+            <div class="text-[10px] text-emerald-600 font-semibold mt-1">Combined Fuel & Expenses</div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Total Dispatched Trips</span>
+                <i data-lucide="navigation" class="w-4 h-4 text-blue-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ total_trips }}</div>
+            <div class="text-[10px] text-blue-600 font-semibold mt-1">Active & Completed Orders</div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Workshop Orders</span>
+                <i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">{{ total_maintenance_orders }}</div>
+            <div class="text-[10px] text-amber-600 font-semibold mt-1">Total Service Appointments</div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Total Fuel Volume</span>
+                <i data-lucide="droplet" class="w-4 h-4 text-indigo-600"></i>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900 font-mono">{{ total_liters }} <span class="text-xs font-normal text-slate-500">L</span></div>
+            <div class="text-[10px] text-indigo-600 font-semibold mt-1">Refueled Across Fleet</div>
+        </div>
+    </div>
+
+    <!-- Charts Grid Row 1: Fleet Status (Doughnut) & Monthly Fuel vs Expense Trends (Line/Bar) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Doughnut Chart: Fleet Status -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs p-5 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-blue-600"></i>
+                        <span>Fleet Status Distribution</span>
+                    </h3>
+                    <span class="text-[10px] text-slate-400 font-mono">Live ORM</span>
+                </div>
+                <div class="relative h-64 flex items-center justify-center">
+                    <canvas id="fleetStatusChart"></canvas>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 text-center">
+                Real-time breakdown of vehicle availability across active depots.
+            </div>
+        </div>
+
+        <!-- Bar/Line Chart: Monthly Fuel vs Expense Trends -->
+        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl shadow-xs p-5 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                        <i data-lucide="trending-up" class="w-4 h-4 text-indigo-600"></i>
+                        <span>Monthly Fuel vs Expense Trends (Last 6 Months)</span>
+                    </h3>
+                    <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Accounting Ledger</span>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="monthlyTrendsChart"></canvas>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
+                <span>Compares fuel pump vouchers against general operating expenses.</span>
+                <span class="font-bold text-slate-700">Values in INR (₹)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Grid Row 2: Top 5 Costliest Vehicles & Driver Utilization -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Horizontal Bar Chart: Top 5 Costliest Vehicles -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs p-5 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                        <i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i>
+                        <span>Top 5 Costliest Vehicles (Total OpEx + Maintenance)</span>
+                    </h3>
+                    <span class="text-[10px] text-red-600 font-bold uppercase tracking-wider bg-red-50 px-2 py-0.5 rounded">High Maintenance</span>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="topCostChart"></canvas>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                Identifies vehicles requiring excessive workshop expenditure or fuel consumption.
+            </div>
+        </div>
+
+        <!-- Stacked/Grouped Bar Chart: Driver Utilization & Trip Completion -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs p-5 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                        <i data-lucide="user-check" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Top Driver Utilization & Trip Completion</span>
+                    </h3>
+                    <span class="text-[10px] text-emerald-700 font-bold uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded">Performance</span>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="driverChart"></canvas>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                Compares successfully completed trips versus active dispatches per driver.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Fleet Status Distribution Doughnut Chart
+    const statusCtx = document.getElementById('fleetStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ chart_fleet_status_labels|safe }},
+            datasets: [{
+                data: {{ chart_fleet_status_data|safe }},
+                backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#64748B'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, family: 'Inter, sans-serif' } } }
+            },
+            cutout: '68%'
+        }
+    });
+
+    // 2. Monthly Fuel vs Expense Trends Bar Chart
+    const trendsCtx = document.getElementById('monthlyTrendsChart').getContext('2d');
+    new Chart(trendsCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_monthly_labels|safe }},
+            datasets: [
+                {
+                    label: 'Fuel Costs (₹)',
+                    data: {{ chart_monthly_fuel_data|safe }},
+                    backgroundColor: '#3B82F6',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Other Expenses (₹)',
+                    data: {{ chart_monthly_expense_data|safe }},
+                    backgroundColor: '#6366F1',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 } } },
+                x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+            },
+            plugins: {
+                legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
+            }
+        }
+    });
+
+    // 3. Top 5 Costliest Vehicles Horizontal Bar Chart
+    const topCostCtx = document.getElementById('topCostChart').getContext('2d');
+    new Chart(topCostCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_top_cost_labels|safe }},
+            datasets: [{
+                label: 'Total Cost (₹)',
+                data: {{ chart_top_cost_data|safe }},
+                backgroundColor: '#EF4444',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 } } },
+                y: { grid: { display: false }, ticks: { font: { size: 11, weight: 'bold' } } }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 4. Driver Utilization Grouped Bar Chart
+    const driverCtx = document.getElementById('driverChart').getContext('2d');
+    new Chart(driverCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_driver_labels|safe }},
+            datasets: [
+                {
+                    label: 'Completed Trips',
+                    data: {{ chart_driver_completed_data|safe }},
+                    backgroundColor: '#10B981',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Active Dispatches',
+                    data: {{ chart_driver_active_data|safe }},
+                    backgroundColor: '#3B82F6',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { stepSize: 1, font: { size: 10 } } },
+                x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+            },
+            plugins: {
+                legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
