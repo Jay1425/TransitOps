@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expenses Ledger — TransitOps ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-[#F8FAFC] text-[#0F172A]">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar text-slate-350 flex flex-col justify-between">
+    <div>
+      <div class="sidebar-logo flex items-center gap-3 px-6 py-4.5 border-b border-slate-800">
+        <i data-lucide="truck" class="w-5 h-5 text-[#2563EB]"></i>
+        <span class="logo-text font-bold text-white tracking-tight">TransitOps ERP</span>
+      </div>
+      <div class="px-3.5 py-4">
+        <div class="flex items-center gap-3 bg-slate-800/40 border border-slate-700/50 rounded p-2 mb-4">
+          <div class="w-8 h-8 rounded bg-amber-600 flex items-center justify-center font-bold text-white text-xs">JW</div>
+          <div class="user-info logo-text">
+            <div id="session-user-name" class="text-xs font-bold text-white">Jordan Wells</div>
+            <div id="session-user-role" class="text-[10px] text-slate-400 font-medium">Financial Analyst</div>
+          </div>
+        </div>
+        <div class="sidebar-header-label text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 px-2.5">Main Menu</div>
+        <nav class="space-y-1">
+          <a href="dashboard.html" class="nav-item">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i><span class="nav-text">Dashboard</span>
+          </a>
+          <a href="expenses.html" class="nav-item active">
+            <i data-lucide="wallet" class="w-4 h-4"></i><span class="nav-text">Expenses</span>
+          </a>
+          <a href="analytics.html" class="nav-item">
+            <i data-lucide="pie-chart" class="w-4 h-4"></i><span class="nav-text">Analytics</span>
+          </a>
+          <a href="reports.html" class="nav-item">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i><span class="nav-text">Reports</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+    <div class="px-3.5 py-4 border-t border-slate-800">
+      <button onclick="terminateMockSession()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-semibold text-xs uppercase tracking-wider hover:bg-red-500/20 transition">
+        <i data-lucide="log-out" class="w-4 h-4"></i><span class="nav-text">Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div id="main-content" class="lg:pl-64 min-h-screen flex flex-col transition-all duration-200">
+    <!-- TOPBAR -->
+    <header class="navbar flex items-center justify-between px-6 shadow-sm">
+      <div class="flex items-center gap-4">
+        <button id="sidebar-toggle" class="text-slate-600 hover:text-[#2563EB] focus:outline-none">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div class="hidden sm:flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span>Financial Analyst</span>
+          <span class="text-slate-300">/</span>
+          <span class="text-[#2563EB]">Expenses</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <button id="profile-menu-button" class="flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-[#2563EB] focus:outline-none">
+            <div class="w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold">JW</div>
+            <span class="hidden md:inline">Jordan Wells</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+          <div id="profile-dropdown" class="profile-dropdown-menu mt-2 py-1 bg-white border border-slate-200 rounded shadow-lg">
+            <a href="#" onclick="triggerToast('Profile...','info')" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">My Profile</a>
+            <hr class="border-slate-100 my-1">
+            <button onclick="terminateMockSession()" class="w-full text-left block px-4 py-2 text-xs text-red-500 hover:bg-red-50">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT BODY -->
+    <main class="flex-1 p-6 space-y-6 max-w-7xl w-full mx-auto">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Expenses Ledger</h1>
+          <p class="text-xs text-slate-500">Track vehicle operational costs, fuel invoices, and maintenance bills.</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="triggerToast('New expense entry form opens...','info')" class="btn-primary-erp px-4 py-2 text-xs shadow-sm rounded">
+            <i data-lucide="plus" class="w-4 h-4"></i> Record Expense
+          </button>
+        </div>
+      </div>
+
+      <!-- SUMMARY CARDS -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="erp-card p-4 space-y-1.5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Fuel</span>
+            <i data-lucide="fuel" class="w-4 h-4"></i>
+          </div>
+          <div class="text-xl font-extrabold text-slate-800">$42,840</div>
+          <div class="text-[10px] text-red-500 font-bold">+8.2% vs last month</div>
+        </div>
+        <div class="erp-card p-4 space-y-1.5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Maintenance</span>
+            <i data-lucide="wrench" class="w-4 h-4"></i>
+          </div>
+          <div class="text-xl font-extrabold text-slate-800">$18,320</div>
+          <div class="text-[10px] text-green-600 font-bold">-3.1% vs last month</div>
+        </div>
+        <div class="erp-card p-4 space-y-1.5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Insurance</span>
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <div class="text-xl font-extrabold text-slate-800">$12,400</div>
+          <div class="text-[10px] text-slate-400 font-bold">No change</div>
+        </div>
+        <div class="erp-card p-4 space-y-1.5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Tolls and Fees</span>
+            <i data-lucide="receipt" class="w-4 h-4"></i>
+          </div>
+          <div class="text-xl font-extrabold text-slate-800">$4,980</div>
+          <div class="text-[10px] text-red-500 font-bold">+12.6% vs last month</div>
+        </div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="erp-card p-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <input type="text" placeholder="Search invoice, vendor..." class="input-field text-xs py-2 max-w-xs">
+          <select class="input-field text-xs py-2 max-w-[160px]">
+            <option>All Categories</option>
+            <option>Fuel</option>
+            <option>Maintenance</option>
+            <option>Insurance</option>
+            <option>Tolls</option>
+            <option>Licensing</option>
+          </select>
+          <select class="input-field text-xs py-2 max-w-[140px]">
+            <option>This Month</option>
+            <option>Last 90 Days</option>
+            <option>This Quarter</option>
+            <option>Year to Date</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- EXPENSES TABLE -->
+      <div class="erp-card">
+        <div class="erp-card-body p-0">
+          <div class="erp-table-container border-none">
+            <table class="erp-table">
+              <thead>
+                <tr>
+                  <th>Invoice No.</th>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Vehicle</th>
+                  <th>Vendor</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-bold text-blue-600">INV-20260112</td>
+                  <td>Jan 12, 2026</td>
+                  <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Fuel</span></td>
+                  <td>FL-3421</td>
+                  <td>Shell Commercial</td>
+                  <td class="font-bold text-slate-800">$136.00</td>
+                  <td><span class="status-badge badge-completed">Paid</span></td>
+                </tr>
+                <tr>
+                  <td class="font-bold text-blue-600">INV-20260111</td>
+                  <td>Jan 11, 2026</td>
+                  <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">Maintenance</span></td>
+                  <td>FL-3415</td>
+                  <td>AutoPro Services</td>
+                  <td class="font-bold text-slate-800">$2,840.00</td>
+                  <td><span class="status-badge badge-completed">Paid</span></td>
+                </tr>
+                <tr>
+                  <td class="font-bold text-blue-600">INV-20260110</td>
+                  <td>Jan 10, 2026</td>
+                  <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Fuel</span></td>
+                  <td>FL-3389</td>
+                  <td>BP Fleet Card</td>
+                  <td class="font-bold text-slate-800">$148.00</td>
+                  <td><span class="status-badge badge-completed">Paid</span></td>
+                </tr>
+                <tr>
+                  <td class="font-bold text-blue-600">INV-20260109</td>
+                  <td>Jan 09, 2026</td>
+                  <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">Insurance</span></td>
+                  <td>Fleet-wide</td>
+                  <td>Allied Insurance Co.</td>
+                  <td class="font-bold text-slate-800">$12,400.00</td>
+                  <td><span class="status-badge badge-maintenance">Pending</span></td>
+                </tr>
+                <tr>
+                  <td class="font-bold text-blue-600">INV-20260108</td>
+                  <td>Jan 08, 2026</td>
+                  <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Tolls</span></td>
+                  <td>FL-3421</td>
+                  <td>E-ZPass Commercial</td>
+                  <td class="font-bold text-slate-800">$342.50</td>
+                  <td><span class="status-badge badge-completed">Paid</span></td>
+                </tr>
+                <tr>
+                  <td class="font-bold text-blue-600">INV-20260107</td>
+                  <td>Jan 07, 2026</td>
+                  <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">Maintenance</span></td>
+                  <td>FL-3402</td>
+                  <td>TruckCare Depot</td>
+                  <td class="font-bold text-slate-800">$1,920.00</td>
+                  <td><span class="status-badge badge-delayed">Overdue</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="flex items-center justify-between">
+        <p class="text-[10px] text-slate-400 font-medium">Showing 1 — 6 of 148 entries</p>
+        <div class="flex gap-1">
+          <button class="px-3 py-1.5 rounded text-[10px] font-bold bg-white border border-slate-200 text-slate-400 cursor-not-allowed">Prev</button>
+          <button class="px-3 py-1.5 rounded text-[10px] font-bold bg-[#2563EB] text-white">1</button>
+          <button class="px-3 py-1.5 rounded text-[10px] font-bold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">2</button>
+          <button class="px-3 py-1.5 rounded text-[10px] font-bold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">3</button>
+          <button class="px-3 py-1.5 rounded text-[10px] font-bold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">Next</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/script.js"></script>
+  <script>
+    verifyAccessGuard('finance');
+  </script>
+</body>
+</html>

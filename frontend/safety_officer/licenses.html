@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>License Status — TransitOps ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-[#F8FAFC] text-[#0F172A]">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar text-slate-355 flex flex-col justify-between">
+    <div>
+      <div class="sidebar-logo flex items-center gap-3 px-6 py-4.5 border-b border-slate-800">
+        <i data-lucide="truck" class="w-5 h-5 text-[#2563EB]"></i>
+        <span class="logo-text font-bold text-white tracking-tight">TransitOps ERP</span>
+      </div>
+      <div class="px-3.5 py-4">
+        <div class="flex items-center gap-3 bg-slate-800/40 border border-slate-700/50 rounded p-2 mb-4">
+          <div class="w-8 h-8 rounded bg-purple-600 flex items-center justify-center font-bold text-white text-xs">SC</div>
+          <div class="user-info logo-text">
+            <div id="session-user-name" class="text-xs font-bold text-white">Sarah Chen</div>
+            <div id="session-user-role" class="text-[10px] text-slate-400 font-medium">Safety Officer</div>
+          </div>
+        </div>
+        <div class="sidebar-header-label text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 px-2.5">Main Menu</div>
+        <nav class="space-y-1">
+          <a href="dashboard.html" class="nav-item">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i><span class="nav-text">Dashboard</span>
+          </a>
+          <a href="compliance.html" class="nav-item">
+            <i data-lucide="shield-check" class="w-4 h-4"></i><span class="nav-text">Compliance</span>
+          </a>
+          <a href="licenses.html" class="nav-item active">
+            <i data-lucide="badge-check" class="w-4 h-4"></i><span class="nav-text">Licenses</span><span class="nav-badge ml-auto bg-blue-600/30 text-blue-400 px-2 py-0.5 text-[9px] font-bold rounded-full">4</span>
+          </a>
+          <a href="incidents.html" class="nav-item">
+            <i data-lucide="alert-triangle" class="w-4 h-4"></i><span class="nav-text">Incidents</span><span class="nav-badge ml-auto bg-red-650/30 text-red-400 px-2 py-0.5 text-[9px] font-bold rounded-full">2</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+    <div class="px-3.5 py-4 border-t border-slate-800">
+      <button onclick="terminateMockSession()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-semibold text-xs uppercase tracking-wider hover:bg-red-500/20 transition">
+        <i data-lucide="log-out" class="w-4 h-4"></i><span class="nav-text">Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div id="main-content" class="lg:pl-64 min-h-screen flex flex-col transition-all duration-200">
+    <!-- TOPBAR -->
+    <header class="navbar flex items-center justify-between px-6 shadow-sm">
+      <div class="flex items-center gap-4">
+        <button id="sidebar-toggle" class="text-slate-600 hover:text-[#2563EB] focus:outline-none">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div class="hidden sm:flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span>Safety Officer</span>
+          <span class="text-slate-300">/</span>
+          <span class="text-[#2563EB]">Licenses</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <button id="profile-menu-button" class="flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-[#2563EB] focus:outline-none">
+            <div class="w-7 h-7 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">SC</div>
+            <span class="hidden md:inline">Sarah Chen</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+          <div id="profile-dropdown" class="profile-dropdown-menu mt-2 py-1 bg-white border border-slate-200 rounded shadow-lg">
+            <a href="#" onclick="triggerToast('Profile...','info')" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">My Profile</a>
+            <hr class="border-slate-100 my-1">
+            <button onclick="terminateMockSession()" class="w-full text-left block px-4 py-2 text-xs text-red-500 hover:bg-red-50">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT BODY -->
+    <main class="flex-1 p-6 space-y-6 max-w-7xl w-full mx-auto">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">License Validity Logs</h1>
+          <p class="text-xs text-slate-500">Track expirations, verify physical documents, and dispatch warnings to drivers.</p>
+        </div>
+        <button onclick="triggerToast('Reminders dispatched!','info')" class="btn-primary-erp px-4 py-2 text-xs shadow-sm rounded">
+          Send Reminders
+        </button>
+      </div>
+
+      <!-- LICENSES TABLE -->
+      <div class="erp-card">
+        <div class="erp-card-body p-0">
+          <div class="erp-table-container border-none">
+            <table class="erp-table">
+              <thead>
+                <tr>
+                  <th>Driver</th>
+                  <th>License Number</th>
+                  <th>Expiration Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-bold text-slate-800">J. Rodriguez</td>
+                  <td>DL-98421</td>
+                  <td>Expired (Jan 10, 2026)</td>
+                  <td><span class="status-badge badge-delayed">Expired</span></td>
+                  <td><button onclick="triggerToast('Verification initiated...','info')" class="text-xs text-[#2563EB] hover:underline font-semibold flex items-center gap-1"><i data-lucide="badge-check" class="w-3.5 h-3.5"></i> Verify</button></td>
+                </tr>
+                <tr>
+                  <td class="font-bold text-slate-800">M. Davis</td>
+                  <td>DL-87234</td>
+                  <td>Expired (Jan 08, 2026)</td>
+                  <td><span class="status-badge badge-delayed">Expired</span></td>
+                  <td><button onclick="triggerToast('Verification...','info')" class="text-xs text-[#2563EB] hover:underline font-semibold flex items-center gap-1"><i data-lucide="badge-check" class="w-3.5 h-3.5"></i> Verify</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/script.js"></script>
+  <script>
+    verifyAccessGuard('safety_officer');
+  </script>
+</body>
+</html>

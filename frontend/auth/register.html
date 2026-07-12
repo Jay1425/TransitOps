@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Account — TransitOps ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-[#F8FAFC] text-[#0F172A] min-h-screen flex items-center justify-center p-6 lg:p-12">
+
+  <div class="erp-card w-full max-w-xl p-8 lg:p-10 shadow-lg bg-white border border-slate-200">
+    <div class="text-center space-y-2 mb-6">
+      <i data-lucide="truck" class="w-10 h-10 text-[#2563EB] mx-auto"></i>
+      <h2 class="text-2xl font-bold tracking-tight text-slate-900">Create ERP Account</h2>
+      <p class="text-xs text-slate-500">Sign up to request console authorizations credentials</p>
+    </div>
+
+    <!-- Form layout -->
+    <div class="space-y-4">
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[9px] font-bold text-slate-550 uppercase tracking-wider mb-1.5">Full Name</label>
+          <input type="text" id="reg-name" class="input-field text-xs py-2.5" placeholder="e.g. John Doe">
+        </div>
+        <div>
+          <label class="block text-[9px] font-bold text-slate-550 uppercase tracking-wider mb-1.5">Company Name</label>
+          <input type="text" id="reg-company" class="input-field text-xs py-2.5" placeholder="e.g. Acme Logistics">
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[9px] font-bold text-slate-550 uppercase tracking-wider mb-1.5">Email Address</label>
+          <input type="email" id="reg-email" class="input-field text-xs py-2.5" placeholder="e.g. name@company.com">
+        </div>
+        <div>
+          <label class="block text-[9px] font-bold text-slate-550 uppercase tracking-wider mb-1.5">Phone Number</label>
+          <input type="text" id="reg-phone" class="input-field text-xs py-2.5" placeholder="e.g. +1 (555) 0123">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[9px] font-bold text-slate-550 uppercase tracking-wider mb-1.5">Choose System Role</label>
+        <select id="reg-role" class="input-field text-xs py-2.5">
+          <option value="fleet_manager">Fleet Manager</option>
+          <option value="driver">Active Driver</option>
+          <option value="safety_officer">Safety Officer</option>
+          <option value="finance">Financial Analyst</option>
+        </select>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[9px] font-bold text-slate-550 uppercase tracking-wider mb-1.5">Password</label>
+          <input type="password" id="reg-pass" class="input-field text-xs py-2.5" placeholder="Enter password">
+        </div>
+        <div>
+          <label class="block text-[9px] font-bold text-slate-550 uppercase tracking-wider mb-1.5">Confirm Password</label>
+          <input type="password" id="reg-confirm" class="input-field text-xs py-2.5" placeholder="Confirm password">
+        </div>
+      </div>
+
+      <button onclick="handleRegisterSubmit()" class="w-full btn-primary-erp justify-center text-sm py-3 mt-2 shadow-sm uppercase tracking-wider font-bold">
+        Register Account Request
+      </button>
+
+      <p class="text-center text-xs text-slate-500 pt-4 font-medium">
+        Already have an account? 
+        <a href="login.html" class="text-[#2563EB] font-bold hover:underline">Login</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/js/script.js"></script>
+  <script>
+    function handleRegisterSubmit() {
+      const name = document.getElementById('reg-name').value;
+      const email = document.getElementById('reg-email').value;
+      
+      if (!name || !email) {
+        alert('Please fill out all required fields.');
+        return;
+      }
+
+      alert('Registration request successfully generated! Redirecting to login...');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

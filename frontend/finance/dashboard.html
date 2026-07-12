@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Dashboard — TransitOps ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-[#F8FAFC] text-[#0F172A]">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar text-slate-350 flex flex-col justify-between">
+    <div>
+      <div class="sidebar-logo flex items-center gap-3 px-6 py-4.5 border-b border-slate-800">
+        <i data-lucide="truck" class="w-5 h-5 text-[#2563EB]"></i>
+        <span class="logo-text font-bold text-white tracking-tight">TransitOps ERP</span>
+      </div>
+      <div class="px-3.5 py-4">
+        <div class="flex items-center gap-3 bg-slate-800/40 border border-slate-700/50 rounded p-2 mb-4">
+          <div class="w-8 h-8 rounded bg-amber-600 flex items-center justify-center font-bold text-white text-xs">JW</div>
+          <div class="user-info logo-text">
+            <div id="session-user-name" class="text-xs font-bold text-white">Jordan Wells</div>
+            <div id="session-user-role" class="text-[10px] text-slate-400 font-medium">Financial Analyst</div>
+          </div>
+        </div>
+        <div class="sidebar-header-label text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 px-2.5">Main Menu</div>
+        <nav class="space-y-1">
+          <a href="dashboard.html" class="nav-item active">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i><span class="nav-text">Dashboard</span>
+          </a>
+          <a href="expenses.html" class="nav-item">
+            <i data-lucide="wallet" class="w-4 h-4"></i><span class="nav-text">Expenses</span>
+          </a>
+          <a href="analytics.html" class="nav-item">
+            <i data-lucide="pie-chart" class="w-4 h-4"></i><span class="nav-text">Analytics</span>
+          </a>
+          <a href="reports.html" class="nav-item">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i><span class="nav-text">Reports</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+    <div class="px-3.5 py-4 border-t border-slate-800">
+      <button onclick="terminateMockSession()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-semibold text-xs uppercase tracking-wider hover:bg-red-500/20 transition">
+        <i data-lucide="log-out" class="w-4 h-4"></i><span class="nav-text">Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div id="main-content" class="lg:pl-64 min-h-screen flex flex-col transition-all duration-200">
+    <!-- TOPBAR -->
+    <header class="navbar flex items-center justify-between px-6 shadow-sm">
+      <div class="flex items-center gap-4">
+        <button id="sidebar-toggle" class="text-slate-600 hover:text-[#2563EB] focus:outline-none">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div class="hidden sm:flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span>Financial Analyst</span>
+          <span class="text-slate-300">/</span>
+          <span class="text-[#2563EB]">Dashboard</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <button id="profile-menu-button" class="flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-[#2563EB] focus:outline-none">
+            <div class="w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold">JW</div>
+            <span class="hidden md:inline">Jordan Wells</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+          <div id="profile-dropdown" class="profile-dropdown-menu mt-2 py-1 bg-white border border-slate-200 rounded shadow-lg">
+            <a href="#" onclick="triggerToast('Profile...','info')" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">My Profile</a>
+            <hr class="border-slate-100 my-1">
+            <button onclick="terminateMockSession()" class="w-full text-left block px-4 py-2 text-xs text-red-500 hover:bg-red-50">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT BODY -->
+    <main class="flex-1 p-6 space-y-6 max-w-7xl w-full mx-auto">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Finance Command</h1>
+          <p class="text-xs text-slate-500">Track expenditures, refuels invoices, and vehicle operating margins.</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="triggerToast('Ledger PDF statement printing...','info')" class="px-4 py-2 rounded bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs shadow-sm transition">
+            Export PDF
+          </button>
+          <button onclick="triggerToast('Ledger CSV file downloading...','success')" class="px-4 py-2 rounded bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs shadow-sm transition">
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Financial KPIs -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="erp-card p-5 space-y-2">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Fuel Cost</span>
+            <i data-lucide="fuel" class="w-4 h-4"></i>
+          </div>
+          <div class="text-2xl font-extrabold text-slate-800">$42,840</div>
+        </div>
+        <div class="erp-card p-5 space-y-2">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Maintenance</span>
+            <i data-lucide="wrench" class="w-4 h-4"></i>
+          </div>
+          <div class="text-2xl font-extrabold text-slate-800">$18,320</div>
+        </div>
+        <div class="erp-card p-5 space-y-2">
+          <div class="flex items-center justify-between text-slate-450">
+            <span class="text-[9px] font-bold uppercase tracking-wider font-bold text-blue-600">Operating Cost</span>
+            <i data-lucide="wallet" class="w-4 h-4"></i>
+          </div>
+          <div class="text-2xl font-extrabold text-blue-600">$78,540</div>
+        </div>
+        <div class="erp-card p-5 space-y-2">
+          <div class="flex items-center justify-between text-slate-450">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Net Profit</span>
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <div class="text-2xl font-extrabold text-green-600">$63,760</div>
+        </div>
+      </div>
+
+      <!-- CHARTS -->
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="erp-card">
+          <div class="erp-card-header">
+            <h3 class="font-bold text-slate-800 text-xs">Operating Costs Breakdown</h3>
+          </div>
+          <div class="erp-card-body">
+            <div class="chart-container">
+              <canvas id="expense-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="erp-card">
+          <div class="erp-card-header">
+            <h3 class="font-bold text-slate-800 text-xs">Profitability margins trends</h3>
+          </div>
+          <div class="erp-card-body">
+            <div class="chart-container">
+              <canvas id="profit-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLES -->
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="erp-card">
+          <div class="erp-card-header">
+            <h3 class="font-bold text-slate-800 text-xs">Fuel Cost by Type</h3>
+          </div>
+          <div class="erp-card-body">
+            <div class="chart-container">
+              <canvas id="fuel-cost-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="erp-card">
+          <div class="erp-card-header">
+            <h3 class="font-bold text-slate-800 text-xs">Vehicle ROI List</h3>
+          </div>
+          <div class="erp-card-body p-0">
+            <div class="erp-table-container border-none">
+              <table class="erp-table">
+                <thead>
+                  <tr>
+                    <th>Vehicle</th>
+                    <th>Revenue</th>
+                    <th>Expenses</th>
+                    <th>ROI</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="font-bold">FL-3421 (Volvo)</td>
+                    <td class="text-green-600 font-bold">$28,400</td>
+                    <td class="text-red-500 font-bold">$18,200</td>
+                    <td><span class="status-badge badge-available">+56.0%</span></td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold">FL-3389 (MAN)</td>
+                    <td class="text-green-600 font-bold">$22,100</td>
+                    <td class="text-red-500 font-bold">$16,400</td>
+                    <td><span class="status-badge badge-available">+34.8%</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/script.js"></script>
+  <script>
+    verifyAccessGuard('finance');
+  </script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — TransitOps ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-[#F8FAFC] text-[#0F172A]">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar text-slate-350 flex flex-col justify-between">
+    <div>
+      <div class="sidebar-logo flex items-center gap-3 px-6 py-4.5 border-b border-slate-800">
+        <i data-lucide="truck" class="w-5 h-5 text-[#2563EB]"></i>
+        <span class="logo-text font-bold text-white tracking-tight">TransitOps ERP</span>
+      </div>
+      <div class="px-3.5 py-4">
+        <div class="flex items-center gap-3 bg-slate-800/40 border border-slate-700/50 rounded p-2 mb-4">
+          <div class="w-8 h-8 rounded bg-amber-600 flex items-center justify-center font-bold text-white text-xs">JW</div>
+          <div class="user-info logo-text">
+            <div id="session-user-name" class="text-xs font-bold text-white">Jordan Wells</div>
+            <div id="session-user-role" class="text-[10px] text-slate-400 font-medium">Financial Analyst</div>
+          </div>
+        </div>
+        <div class="sidebar-header-label text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 px-2.5">Main Menu</div>
+        <nav class="space-y-1">
+          <a href="dashboard.html" class="nav-item">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i><span class="nav-text">Dashboard</span>
+          </a>
+          <a href="expenses.html" class="nav-item">
+            <i data-lucide="wallet" class="w-4 h-4"></i><span class="nav-text">Expenses</span>
+          </a>
+          <a href="analytics.html" class="nav-item active">
+            <i data-lucide="pie-chart" class="w-4 h-4"></i><span class="nav-text">Analytics</span>
+          </a>
+          <a href="reports.html" class="nav-item">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i><span class="nav-text">Reports</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+    <div class="px-3.5 py-4 border-t border-slate-800">
+      <button onclick="terminateMockSession()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-semibold text-xs uppercase tracking-wider hover:bg-red-500/20 transition">
+        <i data-lucide="log-out" class="w-4 h-4"></i><span class="nav-text">Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div id="main-content" class="lg:pl-64 min-h-screen flex flex-col transition-all duration-200">
+    <!-- TOPBAR -->
+    <header class="navbar flex items-center justify-between px-6 shadow-sm">
+      <div class="flex items-center gap-4">
+        <button id="sidebar-toggle" class="text-slate-600 hover:text-[#2563EB] focus:outline-none">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div class="hidden sm:flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span>Financial Analyst</span>
+          <span class="text-slate-300">/</span>
+          <span class="text-[#2563EB]">Analytics</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <button id="profile-menu-button" class="flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-[#2563EB] focus:outline-none">
+            <div class="w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold">JW</div>
+            <span class="hidden md:inline">Jordan Wells</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+          <div id="profile-dropdown" class="profile-dropdown-menu mt-2 py-1 bg-white border border-slate-200 rounded shadow-lg">
+            <a href="#" onclick="triggerToast('Profile...','info')" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">My Profile</a>
+            <hr class="border-slate-100 my-1">
+            <button onclick="terminateMockSession()" class="w-full text-left block px-4 py-2 text-xs text-red-500 hover:bg-red-50">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT BODY -->
+    <main class="flex-1 p-6 space-y-6 max-w-7xl w-full mx-auto">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Financial Analytics</h1>
+          <p class="text-xs text-slate-500">Analyze cost per km trends, fleet profitability margins, and budget variance reports.</p>
+        </div>
+        <div class="flex gap-2">
+          <select class="input-field text-xs py-2 max-w-[140px]">
+            <option>This Quarter</option>
+            <option>Last Quarter</option>
+            <option>Year to Date</option>
+            <option>Custom Range</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- HEADLINE METRICS -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="erp-card p-4 space-y-1.5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Cost per KM</span>
+            <i data-lucide="route" class="w-4 h-4"></i>
+          </div>
+          <div class="text-xl font-extrabold text-slate-800">$1.24</div>
+          <div class="text-[10px] text-green-600 font-bold">-4.6% vs Q3</div>
+        </div>
+        <div class="erp-card p-4 space-y-1.5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Revenue per Trip</span>
+            <i data-lucide="trending-up" class="w-4 h-4"></i>
+          </div>
+          <div class="text-xl font-extrabold text-slate-800">$842</div>
+          <div class="text-[10px] text-green-600 font-bold">+11.3% vs Q3</div>
+        </div>
+        <div class="erp-card p-4 space-y-1.5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Gross Margin</span>
+            <i data-lucide="percent" class="w-4 h-4"></i>
+          </div>
+          <div class="text-xl font-extrabold text-green-600">44.8%</div>
+          <div class="text-[10px] text-green-600 font-bold">+2.1pp vs Q3</div>
+        </div>
+        <div class="erp-card p-4 space-y-1.5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[9px] font-bold uppercase tracking-wider">Budget Used</span>
+            <i data-lucide="wallet" class="w-4 h-4"></i>
+          </div>
+          <div class="text-xl font-extrabold text-amber-600">71%</div>
+          <div class="text-[10px] text-amber-600 font-bold">$78.5K of $110K</div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW 1 -->
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="erp-card">
+          <div class="erp-card-header">
+            <h3 class="font-bold text-slate-800 text-xs">Monthly Cost Breakdown</h3>
+          </div>
+          <div class="erp-card-body">
+            <div class="chart-container">
+              <canvas id="monthly-cost-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="erp-card">
+          <div class="erp-card-header">
+            <h3 class="font-bold text-slate-800 text-xs">Revenue vs Expenses Trend</h3>
+          </div>
+          <div class="erp-card-body">
+            <div class="chart-container">
+              <canvas id="revenue-vs-expense-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW 2 -->
+      <div class="grid lg:grid-cols-3 gap-6">
+        <div class="erp-card">
+          <div class="erp-card-header">
+            <h3 class="font-bold text-slate-800 text-xs">Expense Categories</h3>
+          </div>
+          <div class="erp-card-body">
+            <div class="chart-container">
+              <canvas id="expense-category-pie"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="erp-card lg:col-span-2">
+          <div class="erp-card-header">
+            <h3 class="font-bold text-slate-800 text-xs">Cost per Vehicle (Top 5)</h3>
+          </div>
+          <div class="erp-card-body p-0">
+            <div class="erp-table-container border-none">
+              <table class="erp-table">
+                <thead>
+                  <tr>
+                    <th>Vehicle</th>
+                    <th>Fuel Cost</th>
+                    <th>Maintenance</th>
+                    <th>Insurance</th>
+                    <th>Total</th>
+                    <th>Cost/KM</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="font-bold text-slate-800">FL-3421 (Volvo FH)</td>
+                    <td>$8,420</td>
+                    <td>$3,200</td>
+                    <td>$1,800</td>
+                    <td class="font-bold text-slate-800">$13,420</td>
+                    <td class="font-bold text-green-600">$1.08</td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold text-slate-800">FL-3389 (MAN TGX)</td>
+                    <td>$9,100</td>
+                    <td>$2,840</td>
+                    <td>$1,800</td>
+                    <td class="font-bold text-slate-800">$13,740</td>
+                    <td class="font-bold text-green-600">$1.16</td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold text-slate-800">FL-3415 (Scania R)</td>
+                    <td>$7,980</td>
+                    <td>$4,600</td>
+                    <td>$1,800</td>
+                    <td class="font-bold text-slate-800">$14,380</td>
+                    <td class="font-bold text-amber-600">$1.32</td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold text-slate-800">FL-3402 (DAF XF)</td>
+                    <td>$8,840</td>
+                    <td>$3,900</td>
+                    <td>$1,800</td>
+                    <td class="font-bold text-slate-800">$14,540</td>
+                    <td class="font-bold text-amber-600">$1.38</td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold text-slate-800">FL-3378 (Iveco S)</td>
+                    <td>$8,500</td>
+                    <td>$5,780</td>
+                    <td>$1,800</td>
+                    <td class="font-bold text-slate-800">$16,080</td>
+                    <td class="font-bold text-red-500">$1.54</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUDGET VARIANCE -->
+      <div class="erp-card p-6 space-y-4">
+        <h3 class="font-bold text-slate-800 text-sm">Budget Variance by Department</h3>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span>Fuel Operations</span>
+              <span class="text-amber-600">$42.8K / $48K (89%)</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              <div class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: 89%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span>Vehicle Maintenance</span>
+              <span class="text-green-600">$18.3K / $32K (57%)</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              <div class="bg-green-500 h-full rounded-full transition-all duration-500" style="width: 57%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span>Insurance Premiums</span>
+              <span class="text-blue-600">$12.4K / $15K (83%)</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              <div class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: 83%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span>Tolls and Licensing</span>
+              <span class="text-green-600">$5.0K / $15K (33%)</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              <div class="bg-green-500 h-full rounded-full transition-all duration-500" style="width: 33%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/script.js"></script>
+  <script>
+    verifyAccessGuard('finance');
+  </script>
+</body>
+</html>
