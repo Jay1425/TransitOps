@@ -5,36 +5,36 @@
 
 {% block content %}
 <div class="max-w-xl mx-auto py-12">
-    <div class="bg-white border border-slate-200 rounded-xl shadow-md overflow-hidden text-center p-8 space-y-6">
-        <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto border border-red-100">
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden text-center p-8 space-y-6">
+        <div class="w-16 h-16 bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-300 rounded-full flex items-center justify-center mx-auto border border-red-100 dark:border-red-800 shadow-xs animate-pulse">
             <i data-lucide="x-circle" class="w-8 h-8"></i>
         </div>
 
         <div class="space-y-2">
-            <h3 class="text-lg font-black text-slate-900 tracking-tight">Confirm Order Cancellation</h3>
-            <p class="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
-                Are you sure you want to cancel dispatch order <span class="font-mono font-bold text-slate-900">{{ trip.trip_number }}</span> (<span class="font-medium text-slate-800">{{ trip.pickup }} &rarr; {{ trip.destination }}</span>)?
+            <h3 class="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">Confirm Order Cancellation</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm mx-auto">
+                Are you sure you want to cancel dispatch order <span class="font-mono font-bold text-slate-900 dark:text-slate-200">{{ trip.trip_number }}</span> (<span class="font-medium text-slate-800 dark:text-slate-300">{{ trip.pickup }} &rarr; {{ trip.destination }}</span>)?
             </p>
 
             {% if trip.status == 'dispatched' %}
-                <p class="text-[11px] text-amber-600 font-semibold bg-amber-50 p-3 rounded-lg border border-amber-200 mt-3 text-left">
+                <p class="text-[11px] text-amber-600 dark:text-amber-300 font-semibold bg-amber-50 dark:bg-amber-950/50 p-3 rounded-xl border border-amber-200 dark:border-amber-800 mt-3 text-left">
                     <i data-lucide="info" class="w-3.5 h-3.5 inline mr-1"></i>
                     This order is currently <strong class="uppercase">Dispatched</strong>. Cancelling will automatically release assigned vehicle <strong class="font-mono">{{ trip.vehicle.registration_number }}</strong> and driver <strong>{{ trip.driver.name }}</strong> back to <strong class="uppercase">Available</strong> status.
                 </p>
             {% else %}
-                <p class="text-[11px] text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200 mt-3 text-left">
+                <p class="text-[11px] text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-200 dark:border-slate-600 mt-3 text-left">
                     <i data-lucide="info" class="w-3.5 h-3.5 inline mr-1"></i>
                     This order is in <strong class="uppercase">Draft</strong> status. No vehicle or driver operational statuses will be modified.
                 </p>
             {% endif %}
         </div>
 
-        <form method="post" action="{% url 'trip_cancel' trip.pk %}" class="flex items-center justify-center gap-3 pt-4 border-t border-slate-100">
+        <form method="post" action="{% url 'trip_cancel' trip.pk %}" class="flex items-center justify-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
             {% csrf_token %}
-            <a href="{% url 'trip_list' %}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold uppercase tracking-wider transition">
+            <a href="{% url 'trip_list' %}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold uppercase tracking-wider transition">
                 Go Back
             </a>
-            <button type="submit" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-2">
+            <button type="submit" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-2">
                 <i data-lucide="x" class="w-4 h-4"></i>
                 <span>Confirm Cancellation</span>
             </button>

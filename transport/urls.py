@@ -52,6 +52,9 @@ urlpatterns = [
     path("notifications/read-all/", views.notification_read_all_view, name="notification_read_all"),
     path("notifications/scan/", views.trigger_reminders_scan_view, name="trigger_reminders_scan"),
 
+    # Global Search (Step 13)
+    path("search/", views.global_search_view, name="global_search"),
+
     # Settings
     path("settings/", views.settings_view, name="settings"),
 ]

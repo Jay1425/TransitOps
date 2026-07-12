@@ -33,14 +33,14 @@
         }
     </script>
 </head>
-<body class="bg-[#F8FAFC] dark:bg-slate-900 text-[#0F172A] dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+<body class="bg-[#F8FAFC] dark:bg-slate-900 text-[#0F172A] dark:text-slate-100 h-screen flex font-sans transition-colors duration-200 overflow-hidden">
 
-    <div class="flex flex-1 min-h-screen">
+    <div class="flex flex-1 h-screen overflow-hidden w-full">
         <!-- Sidebar -->
         {% include "includes/sidebar.html" %}
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col min-w-0">
+        <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
             <!-- Navbar -->
             {% include "includes/navbar.html" %}
 
@@ -74,7 +74,66 @@
             </div>
 
             <!-- Page Content -->
-            <main class="flex-1 p-6">
+            <main class="flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar">
+                <!-- Enterprise Dynamic Breadcrumb Navigation (Step 6) -->
+                <nav class="flex items-center text-xs text-slate-500 dark:text-slate-400 mb-5 bg-white dark:bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs w-fit select-none shrink-0" aria-label="Breadcrumb">
+                    <ol class="inline-flex items-center space-x-1.5 sm:space-x-2.5">
+                        <li class="inline-flex items-center">
+                            <a href="{% url 'dashboard' %}" class="inline-flex items-center font-bold text-slate-700 dark:text-slate-200 hover:text-[#2563EB] dark:hover:text-blue-400 transition gap-1.5">
+                                <i data-lucide="home" class="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        {% if request.resolver_match.url_name != 'dashboard' %}
+                            <li>
+                                <div class="flex items-center">
+                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500"></i>
+                                    <span class="ml-1 sm:ml-2 font-bold text-slate-800 dark:text-slate-100 capitalize">
+                                        {% if 'fleet' in request.path or 'vehicle' in request.resolver_match.url_name %}Fleet Registry
+                                        {% elif 'driver' in request.resolver_match.url_name %}Driver Management
+                                        {% elif 'trip' in request.resolver_match.url_name %}Trip & Dispatch
+                                        {% elif 'maintenance' in request.resolver_match.url_name %}Shop & Maintenance
+                                        {% elif 'fuel' in request.resolver_match.url_name or 'expense' in request.resolver_match.url_name %}Fuel & Expenses Ledger
+                                        {% elif 'analytics' in request.path or 'report' in request.resolver_match.url_name %}Analytics & Reports
+                                        {% elif 'notification' in request.resolver_match.url_name %}System Alerts
+                                        {% elif 'settings' in request.resolver_match.url_name %}System Settings
+                                        {% else %}{% block header_title %}Module Console{% endblock %}{% endif %}
+                                    </span>
+                                </div>
+                            </li>
+                            {% if request.resolver_match.url_name == 'vehicle_detail' or request.resolver_match.url_name == 'maintenance_detail' or request.resolver_match.url_name == 'expense_detail' %}
+                            <li>
+                                <div class="flex items-center">
+                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500"></i>
+                                    <span class="ml-1 sm:ml-2 font-mono text-[#2563EB] dark:text-blue-400 font-bold">Record Details (#{{ request.resolver_match.kwargs.pk }})</span>
+                                </div>
+                            </li>
+                            {% elif 'add' in request.resolver_match.url_name %}
+                            <li>
+                                <div class="flex items-center">
+                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500"></i>
+                                    <span class="ml-1 sm:ml-2 text-[#2563EB] dark:text-blue-400 font-bold">New Record</span>
+                                </div>
+                            </li>
+                            {% elif 'edit' in request.resolver_match.url_name %}
+                            <li>
+                                <div class="flex items-center">
+                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500"></i>
+                                    <span class="ml-1 sm:ml-2 text-amber-600 dark:text-amber-400 font-bold">Edit (#{{ request.resolver_match.kwargs.pk }})</span>
+                                </div>
+                            </li>
+                            {% elif 'delete' in request.resolver_match.url_name %}
+                            <li>
+                                <div class="flex items-center">
+                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500"></i>
+                                    <span class="ml-1 sm:ml-2 text-red-600 dark:text-red-400 font-bold">Delete Confirmation</span>
+                                </div>
+                            </li>
+                            {% endif %}
+                        {% endif %}
+                    </ol>
+                </nav>
+
                 {% block content %}
                 {% endblock %}
             </main>
@@ -102,6 +161,25 @@
             }
         }
 
+        // Notification Dropdown Toggle & Auto-Close
+        function toggleNotificationDropdown(event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const bellContainer = document.getElementById('notificationBellContainer');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                if (bellContainer && !bellContainer.contains(event.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+        });
+
         // Theme Controller (Step 8)
         function toggleTheme() {
             if (document.documentElement.classList.contains('dark')) {
@@ -123,6 +201,51 @@
                     setTimeout(function() { toast.remove(); }, 300);
                 }, 4500);
             });
+
+            // Universal Form Loading States Handler (Step 4)
+            document.querySelectorAll('form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    if (form.getAttribute('data-no-loading') === 'true') return;
+                    const btn = form.querySelector('button[type="submit"]') || form.querySelector('input[type="submit"]');
+                    if (btn && !btn.disabled) {
+                        btn.disabled = true;
+                        btn.classList.add('opacity-75', 'cursor-not-allowed');
+                        const txt = btn.innerText || btn.value || '';
+                        let actionTxt = 'Processing...';
+                        if (txt.includes('Save') || txt.includes('Update')) actionTxt = 'Saving...';
+                        else if (txt.includes('Create') || txt.includes('Add')) actionTxt = 'Creating...';
+                        else if (txt.includes('Dispatch')) actionTxt = 'Dispatching...';
+                        else if (txt.includes('Complete')) actionTxt = 'Completing...';
+                        else if (txt.includes('Delete') || txt.includes('Confirm')) actionTxt = 'Deleting...';
+                        else if (txt.includes('Export') || txt.includes('Download')) actionTxt = 'Exporting...';
+                        
+                        if (btn.tagName === 'BUTTON') {
+                            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-current inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>${actionTxt}`;
+                        } else {
+                            btn.value = actionTxt;
+                        }
+                    }
+                });
+            });
+        });
+
+        // Profile Dropdown Toggle & Click-Outside
+        function toggleProfileDropdown(event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const container = document.getElementById('profileDropdownContainer');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                if (container && !container.contains(event.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            }
         });
     </script>
     {% block extra_js %}{% endblock %}

@@ -1335,3 +1335,76 @@ def trigger_reminders_scan_view(request):
     return redirect("notification_list")
 
 
+# ==============================================================================
+# GLOBAL SEARCH & ENTERPRISE LEDGER EXPORTS (Step 13)
+# ==============================================================================
+
+@login_required
+def global_search_view(request):
+    query = request.GET.get("q", "").strip()
+    results = {
+        "vehicles": [],
+        "drivers": [],
+        "trips": [],
+        "maintenances": [],
+        "fuels": [],
+        "expenses": [],
+    }
+    
+    if query:
+        results["vehicles"] = Vehicle.objects.filter(
+            Q(registration_number__icontains=query) |
+            Q(vehicle_name__icontains=query) |
+            Q(vehicle_type__icontains=query) |
+            Q(status__icontains=query)
+        ).filter(is_active=True)[:10]
+
+        results["drivers"] = Driver.objects.filter(
+            Q(name__icontains=query) |
+            Q(license_number__icontains=query) |
+            Q(phone__icontains=query) |
+            Q(status__icontains=query)
+        ).filter(is_active=True)[:10]
+
+        results["trips"] = Trip.objects.filter(
+            Q(trip_number__icontains=query) |
+            Q(pickup__icontains=query) |
+            Q(destination__icontains=query) |
+            Q(cargo__icontains=query) |
+            Q(vehicle__registration_number__icontains=query) |
+            Q(driver__name__icontains=query)
+        ).filter(is_active=True)[:10]
+
+        results["maintenances"] = Maintenance.objects.filter(
+            Q(service_type__icontains=query) |
+            Q(technician__icontains=query) |
+            Q(description__icontains=query) |
+            Q(vehicle__registration_number__icontains=query)
+        ).filter(is_active=True)[:10]
+
+        results["fuels"] = FuelLog.objects.filter(
+            Q(vendor__icontains=query) |
+            Q(vehicle__registration_number__icontains=query)
+        ).filter(is_active=True)[:10]
+
+        results["expenses"] = Expense.objects.filter(
+            Q(expense_type__icontains=query) |
+            Q(description__icontains=query) |
+            Q(vehicle__registration_number__icontains=query)
+        ).filter(is_active=True)[:10]
+
+    total_matches = (
+        len(results["vehicles"]) + len(results["drivers"]) +
+        len(results["trips"]) + len(results["maintenances"]) +
+        len(results["fuels"]) + len(results["expenses"])
+    )
+
+    context = {
+        "query": query,
+        "results": results,
+        "total_matches": total_matches,
+    }
+    return render(request, "transport/global_search.html", context)
+
+
+

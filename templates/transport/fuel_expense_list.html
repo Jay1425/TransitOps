@@ -118,11 +118,11 @@
         </div>
 
         <!-- Table View: Fuel Logs vs Expenses -->
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto max-h-[65vh] overflow-y-auto custom-scrollbar">
             {% if tab == "fuel" %}
             <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                    <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] uppercase tracking-wider font-extrabold text-slate-600">
+                <thead class="sticky top-0 z-10 shadow-2xs">
+                    <tr class="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-[10px] uppercase tracking-wider font-extrabold text-slate-600 dark:text-slate-300">
                         <th class="py-3 px-4">Date</th>
                         <th class="py-3 px-4">Vehicle</th>
                         <th class="py-3 px-4">Linked Trip</th>
@@ -162,15 +162,37 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="py-12 text-center text-slate-400">No fuel records found for this filter criteria.</td>
+                        <td colspan="8" class="py-16 text-center bg-slate-50/50 dark:bg-slate-800/40">
+                            <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
+                                <div class="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 flex items-center justify-center mb-4 shadow-xs border border-emerald-100 dark:border-emerald-800">
+                                    <i data-lucide="fuel" class="w-8 h-8"></i>
+                                </div>
+                                <h4 class="text-base font-bold text-slate-800 dark:text-slate-100">No Fuel Records Found</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                                    There are no fuel transaction logs matching your active criteria. Log a fuel refill to track fleet consumption and MPG efficiency.
+                                </p>
+                                <div class="mt-5 flex gap-2.5">
+                                    {% if request.GET.q or request.GET.vehicle or request.GET.vendor %}
+                                    <a href="{% url 'fuel_expense_list' %}?tab=fuel" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                        <span>Clear Filters</span>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'fuel_add' %}" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5">
+                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                        <span>Log Fuel Entry</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             {% else %}
             <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                    <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] uppercase tracking-wider font-extrabold text-slate-600">
+                <thead class="sticky top-0 z-10 shadow-2xs">
+                    <tr class="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-[10px] uppercase tracking-wider font-extrabold text-slate-600 dark:text-slate-300">
                         <th class="py-3 px-4">Date</th>
                         <th class="py-3 px-4">Type</th>
                         <th class="py-3 px-4">Vehicle</th>
@@ -213,7 +235,29 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="py-12 text-center text-slate-400">No operational expenses found for this filter criteria.</td>
+                        <td colspan="7" class="py-16 text-center bg-slate-50/50 dark:bg-slate-800/40">
+                            <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
+                                <div class="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/40 text-[#2563EB] dark:text-blue-300 flex items-center justify-center mb-4 shadow-xs border border-blue-100 dark:border-blue-800">
+                                    <i data-lucide="credit-card" class="w-8 h-8"></i>
+                                </div>
+                                <h4 class="text-base font-bold text-slate-800 dark:text-slate-100">No Operational Expenses Logged</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                                    No operational expense entries matched your criteria. Record toll, parking, or repair expenses to maintain accurate accounting ledgers.
+                                </p>
+                                <div class="mt-5 flex gap-2.5">
+                                    {% if request.GET.q or request.GET.vehicle or request.GET.type %}
+                                    <a href="{% url 'fuel_expense_list' %}?tab=expenses" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                        <span>Clear Filters</span>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'expense_add' %}" class="px-4 py-2 bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5">
+                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                        <span>Log Expense</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

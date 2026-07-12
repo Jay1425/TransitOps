@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block header_title %}Global Search Results{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6 pb-12">
+    <!-- Search Bar & Summary Header -->
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-black text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2">
+                <i data-lucide="search" class="w-5 h-5 text-[#2563EB]"></i>
+                Search Results for "<span class="text-[#2563EB]">{{ query }}</span>"
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                Found <strong class="text-slate-800 dark:text-slate-200">{{ total_matches }}</strong> total active record matches across the entire enterprise database.
+            </p>
+        </div>
+
+        <form action="{% url 'global_search' %}" method="get" class="flex gap-2 w-full md:w-80">
+            <div class="relative flex-1">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="Search again..."
+                    class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-[#2563EB] rounded-xl pl-10 pr-4 py-2 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 transition"
+                >
+            </div>
+            <button type="submit" class="px-4 py-2 bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
+                Search
+            </button>
+        </form>
+    </div>
+
+    {% if not query %}
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center shadow-xs max-w-lg mx-auto my-12">
+        <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/40 text-[#2563EB] dark:text-blue-300 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="search" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-100">Enter a Search Query</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+            Type vehicle registrations, driver names, trip IDs, vendor names, or maintenance terms to find immediate cross-module results.
+        </p>
+    </div>
+    {% elif total_matches == 0 %}
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center shadow-xs max-w-lg mx-auto my-12">
+        <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="folder-search" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-100">No Matching Records Found</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+            We couldn't find any vehicles, drivers, trips, or financial logs matching "<span class="font-bold">{{ query }}</span>". Try broadening your keywords.
+        </p>
+    </div>
+    {% else %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Vehicles Results -->
+        {% if results.vehicles %}
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3 mb-3">
+                    <h3 class="text-xs font-black uppercase tracking-wider text-[#2563EB] flex items-center gap-1.5">
+                        <i data-lucide="truck" class="w-4 h-4"></i>
+                        <span>Vehicles ({{ results.vehicles|length }})</span>
+                    </h3>
+                    <a href="{% url 'vehicle_list' %}?q={{ query }}" class="text-[11px] font-bold text-slate-500 hover:text-[#2563EB] transition">View All &rarr;</a>
+                </div>
+                <ul class="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
+                    {% for vehicle in results.vehicles %}
+                    <li class="py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/40 px-2 rounded-lg transition">
+                        <div>
+                            <p class="font-black text-slate-800 dark:text-slate-100 font-mono">{{ vehicle.registration_number }}</p>
+                            <p class="text-slate-500 dark:text-slate-400 text-[11px]">{{ vehicle.vehicle_name }} &bull; {{ vehicle.get_vehicle_type_display }}</p>
+                        </div>
+                        <a href="{% url 'vehicle_detail' vehicle.pk %}" class="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/40 text-[#2563EB] dark:text-blue-300 font-bold rounded-lg hover:bg-[#2563EB] hover:text-white transition">Inspect</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Drivers Results -->
+        {% if results.drivers %}
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3 mb-3">
+                    <h3 class="text-xs font-black uppercase tracking-wider text-green-600 dark:text-green-400 flex items-center gap-1.5">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                        <span>Drivers ({{ results.drivers|length }})</span>
+                    </h3>
+                    <a href="{% url 'driver_list' %}?q={{ query }}" class="text-[11px] font-bold text-slate-500 hover:text-[#2563EB] transition">View All &rarr;</a>
+                </div>
+                <ul class="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
+                    {% for driver in results.drivers %}
+                    <li class="py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/40 px-2 rounded-lg transition">
+                        <div>
+                            <p class="font-bold text-slate-800 dark:text-slate-100">{{ driver.name }}</p>
+                            <p class="text-slate-500 dark:text-slate-400 text-[11px] font-mono">Lic: {{ driver.license_number }} &bull; {{ driver.phone }}</p>
+                        </div>
+                        <a href="{% url 'driver_detail' driver.pk %}" class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-lg hover:bg-[#2563EB] hover:text-white transition">Inspect</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Trips Results -->
+        {% if results.trips %}
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3 mb-3">
+                    <h3 class="text-xs font-black uppercase tracking-wider text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+                        <i data-lucide="navigation" class="w-4 h-4"></i>
+                        <span>Trips & Dispatches ({{ results.trips|length }})</span>
+                    </h3>
+                    <a href="{% url 'trip_list' %}?q={{ query }}" class="text-[11px] font-bold text-slate-500 hover:text-[#2563EB] transition">View All &rarr;</a>
+                </div>
+                <ul class="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
+                    {% for trip in results.trips %}
+                    <li class="py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/40 px-2 rounded-lg transition">
+                        <div>
+                            <p class="font-black text-slate-800 dark:text-slate-100 font-mono">{{ trip.trip_number }}</p>
+                            <p class="text-slate-500 dark:text-slate-400 text-[11px] truncate max-w-xs">{{ trip.pickup }} &rarr; {{ trip.destination }}</p>
+                        </div>
+                        <a href="{% url 'trip_detail' trip.pk %}" class="px-2.5 py-1 bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 font-bold rounded-lg hover:bg-purple-600 hover:text-white transition">Inspect</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Maintenance Results -->
+        {% if results.maintenances %}
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3 mb-3">
+                    <h3 class="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                        <i data-lucide="wrench" class="w-4 h-4"></i>
+                        <span>Shop Logs ({{ results.maintenances|length }})</span>
+                    </h3>
+                    <a href="{% url 'maintenance_list' %}?q={{ query }}" class="text-[11px] font-bold text-slate-500 hover:text-[#2563EB] transition">View All &rarr;</a>
+                </div>
+                <ul class="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
+                    {% for main in results.maintenances %}
+                    <li class="py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/40 px-2 rounded-lg transition">
+                        <div>
+                            <p class="font-bold text-slate-800 dark:text-slate-100">{{ main.service_type }}</p>
+                            <p class="text-slate-500 dark:text-slate-400 text-[11px] font-mono">{{ main.vehicle.registration_number }} &bull; {{ main.technician }}</p>
+                        </div>
+                        <a href="{% url 'maintenance_detail' main.pk %}" class="px-2.5 py-1 bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300 font-bold rounded-lg hover:bg-amber-600 hover:text-white transition">Inspect</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Financial Log Results (Fuel & Expenses) -->
+        {% if results.fuels or results.expenses %}
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between md:col-span-2">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3 mb-3">
+                    <h3 class="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                        <i data-lucide="credit-card" class="w-4 h-4"></i>
+                        <span>Financial Records (Fuel Logs & Expenses)</span>
+                    </h3>
+                    <a href="{% url 'fuel_expense_list' %}?q={{ query }}" class="text-[11px] font-bold text-slate-500 hover:text-[#2563EB] transition">Open Ledger &rarr;</a>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <ul class="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
+                        {% for f in results.fuels %}
+                        <li class="py-2 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/40 px-2 rounded-lg transition">
+                            <div>
+                                <p class="font-bold text-slate-800 dark:text-slate-100 font-mono">{{ f.vehicle.registration_number }} &bull; &dollar;{{ f.cost }}</p>
+                                <p class="text-slate-500 text-[11px]">{{ f.vendor|default:"Fuel Refill" }} &bull; {{ f.fuel_date }}</p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <ul class="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
+                        {% for e in results.expenses %}
+                        <li class="py-2 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/40 px-2 rounded-lg transition">
+                            <div>
+                                <p class="font-bold text-slate-800 dark:text-slate-100">{{ e.get_expense_type_display }} &bull; &dollar;{{ e.amount }}</p>
+                                <p class="text-slate-500 text-[11px]">{{ e.description|truncatewords:6 }}</p>
+                            </div>
+                            <a href="{% url 'expense_detail' e.pk %}" class="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 font-bold rounded text-[11px] hover:bg-emerald-600 hover:text-white transition">Inspect</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

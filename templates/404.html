@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block header_title %}404 Not Found{% endblock %}
+
+{% block content %}
+<div class="min-h-[75vh] flex flex-col items-center justify-center p-6 text-center select-none">
+    <div class="w-24 h-24 bg-blue-50 dark:bg-blue-900/30 text-[#2563EB] dark:text-blue-400 rounded-full flex items-center justify-center mb-6 shadow-xs border border-blue-100 dark:border-blue-800 animate-pulse">
+        <i data-lucide="file-question" class="w-12 h-12"></i>
+    </div>
+
+    <div class="inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-blue-100 dark:bg-blue-950 text-[#2563EB] dark:text-blue-300 border border-blue-200 dark:border-blue-800 mb-3">
+        Error 404 &bull; Resource Missing
+    </div>
+
+    <h1 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-slate-100 tracking-tight max-w-xl">
+        We Couldn't Find That Enterprise Record
+    </h1>
+
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-3 max-w-md leading-relaxed">
+        The requested vehicle, driver profile, dispatch order, or financial ledger entry may have been archived, deleted, or moved. Check the URL or search the registry.
+    </p>
+
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <a href="{% url 'dashboard' %}" class="px-5 py-2.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-2">
+            <i data-lucide="home" class="w-4 h-4"></i>
+            <span>Return to Dashboard</span>
+        </a>
+        <a href="{% url 'global_search' %}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition border border-slate-200 dark:border-slate-700 flex items-center gap-2">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+            <span>Search Enterprise Database</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

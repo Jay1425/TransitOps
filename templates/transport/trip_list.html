@@ -120,10 +120,10 @@
 
     <!-- Trips Directory Table -->
     <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto max-h-[65vh] overflow-y-auto custom-scrollbar">
             <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                    <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] uppercase tracking-wider font-extrabold text-slate-600">
+                <thead class="sticky top-0 z-10 shadow-2xs">
+                    <tr class="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-[10px] uppercase tracking-wider font-extrabold text-slate-600 dark:text-slate-300">
                         <th class="py-3.5 px-4">Trip Number</th>
                         <th class="py-3.5 px-4">Route (Source &rarr; Dest)</th>
                         <th class="py-3.5 px-4">Assigned Vehicle & Driver</th>
@@ -223,13 +223,27 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="py-12 text-center">
-                            <div class="flex flex-col items-center justify-center text-slate-400">
-                                <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-                                    <i data-lucide="navigation" class="w-6 h-6 text-slate-400"></i>
+                        <td colspan="7" class="py-16 text-center bg-slate-50/50 dark:bg-slate-800/40">
+                            <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
+                                <div class="w-16 h-16 rounded-full bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 flex items-center justify-center mb-4 shadow-xs border border-purple-100 dark:border-purple-800">
+                                    <i data-lucide="navigation" class="w-8 h-8"></i>
                                 </div>
-                                <p class="font-semibold text-slate-600">No dispatch orders match your criteria.</p>
-                                <p class="text-xs text-slate-400 mt-1">Reset your query filters or create a new trip dispatch above.</p>
+                                <h4 class="text-base font-bold text-slate-800 dark:text-slate-100">No Dispatches Logged</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                                    There are no trips matching your active filter criteria. Create a new trip order to dispatch vehicles and drivers.
+                                </p>
+                                <div class="mt-5 flex gap-2.5">
+                                    {% if request.GET.q or request.GET.status or request.GET.vehicle %}
+                                    <a href="{% url 'trip_list' %}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                        <span>Clear Filters</span>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'trip_add' %}" class="px-4 py-2 bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5">
+                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                        <span>Create Dispatch Order</span>
+                                    </a>
+                                </div>
                             </div>
                         </td>
                     </tr>

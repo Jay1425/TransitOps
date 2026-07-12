@@ -106,10 +106,10 @@
 
     <!-- Maintenance Table -->
     <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto max-h-[65vh] overflow-y-auto custom-scrollbar">
             <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                    <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] uppercase tracking-wider font-extrabold text-slate-600">
+                <thead class="sticky top-0 z-10 shadow-2xs">
+                    <tr class="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-[10px] uppercase tracking-wider font-extrabold text-slate-600 dark:text-slate-300">
                         <th class="py-3 px-4">Order #</th>
                         <th class="py-3 px-4">Vehicle</th>
                         <th class="py-3 px-4">Service Type</th>
@@ -159,11 +159,27 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="py-12 text-center text-slate-400">
-                            <div class="flex flex-col items-center justify-center space-y-2">
-                                <i data-lucide="tool" class="w-8 h-8 text-slate-300"></i>
-                                <span class="text-sm font-semibold text-slate-600">No maintenance records found.</span>
-                                <span class="text-xs text-slate-400">Schedule regular servicing or log workshop inspections to get started.</span>
+                        <td colspan="8" class="py-16 text-center bg-slate-50/50 dark:bg-slate-800/40">
+                            <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
+                                <div class="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300 flex items-center justify-center mb-4 shadow-xs border border-amber-100 dark:border-amber-800">
+                                    <i data-lucide="wrench" class="w-8 h-8"></i>
+                                </div>
+                                <h4 class="text-base font-bold text-slate-800 dark:text-slate-100">No Workshop Logs Found</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                                    There are no maintenance or service logs matching your filters. Schedule routine vehicle service or breakdown repairs to track workshop expenses.
+                                </p>
+                                <div class="mt-5 flex gap-2.5">
+                                    {% if request.GET.q or request.GET.status or request.GET.vehicle %}
+                                    <a href="{% url 'maintenance_list' %}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                        <span>Clear Filters</span>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'maintenance_add' %}" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5">
+                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                        <span>Schedule Maintenance</span>
+                                    </a>
+                                </div>
                             </div>
                         </td>
                     </tr>
