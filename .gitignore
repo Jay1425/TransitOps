@@ -1,0 +1,37 @@
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite
+db.sqlite3
+
+# Environment Variables
+.env
+
+# Django
+*.log
+media/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Static collected files
+staticfiles/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# OS files
+.DS_Store
+Thumbs.db
